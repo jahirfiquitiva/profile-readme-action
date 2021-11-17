@@ -1,10 +1,8 @@
 const core = require('@actions/core');
 const { Toolkit } = require('actions-toolkit');
-
 const fs = require('fs');
-const path = require('path');
-
 const { markdown } = require('markdown');
+const { spawn } = require("child_process");
 
 const getRecentActivity = require('./activity');
 const getFeed = require('./feed');
@@ -25,6 +23,19 @@ const mdToHtml = (md) => markdown.toHTML(md);
 
 const removeOutterTags = (html) => {
   return html.substring(4, html.length - 5);
+};
+
+const commitFile = async () => {
+  await exec("git", [
+    "config",
+    "--global",
+    "user.email",
+    "41898282+github-actions[bot]@users.noreply.github.com",
+  ]);
+  await exec("git", ["config", "--global", "user.name", "github-actions[bot]"]);
+  await exec("git", ["add", "README.md"]);
+  await exec("git", ["commit", "-m", COMMIT_MSG]);
+  await exec("git", ["push"]);
 };
 
 const readmeAction = async (tools) => {
@@ -57,7 +68,7 @@ const readmeAction = async (tools) => {
   }
 
   const readmeContent = fs
-    .readFileSync('./README.md', 'utf-8')
+    .readFileSync('./TEMPLATE.md', 'utf-8')
     .split('\n')
     .map((line) => {
       const content = line.trim();
@@ -79,9 +90,17 @@ Toolkit.run(
   async (tools) => {
     try {
       await readmeAction(tools);
+
+      // Commit to the remote repository
+      try {
+        await commitFile();
+      } catch (err) {
+        tools.log.debug("Something went wrong");
+        return tools.exit.failure(err);
+      }
     } catch (error) {
       core.setFailed(error.message);
-      tools.exit.errpr(error.message || 'Unexpected error!');
+      tools.exit.failure(error.message || 'Unexpected error!');
     }
     tools.exit.success('Pushed to remote repository');
   },
