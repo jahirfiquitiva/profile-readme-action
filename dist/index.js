@@ -20514,9 +20514,11 @@ const serializers = {
     return `${line} PR ${toUrlFormat(item)} in ${toUrlFormat(item.repo.name)}`;
   },
   ForkEvent: item => {
+    console.log(item)
     return `🍴 Forked ${item.payload.forkee.full_name} from ${item.repo.name}`;
   },
   ReleaseEvent: item => {
+    console.log(item)
     return `📦 Released "${item.payload.release.name}" in ${item.repo.name}`;
   },
 };
