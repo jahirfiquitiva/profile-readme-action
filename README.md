@@ -68,9 +68,9 @@ Use the following `input params` to customize it for your use case:-
 
 | Input Param | Default Value | Description |
 |--------|--------|--------|
-| `COMMIT_MSG` | :sparkles: Update README with the recent activity and blog posts |
+| `COMMIT_MSG` | :sparkles: Update README with the recent activity and blog posts | Commit message used while committing to the repo |
 | `MAX_ACTIVITY_LINES` | 5 | The maximum number of lines populated in your readme file |
 | `ACTIVITY_TO_HTML` | false | Whether to convert activity markdown to html |
-| `FEED_URL` | '' | The RSS url to get feed from |
+| `FEED_URL` |   | The RSS url to get feed from |
 | `MAX_FEED_LINES` | 5 | The maximum number of lines for feed populated in your readme file |
 | `FEED_TO_HTML` | false | Whether to convert blogs markdown to html |
