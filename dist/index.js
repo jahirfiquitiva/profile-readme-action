@@ -28412,7 +28412,9 @@ const readmeAction = async (tools) => {
           return content;
       }
     });
-  console.log(readmeContent.join('\n'));
+
+  // Update README
+  fs.writeFileSync('./README.md', readmeContent.join('\n'));
 };
 
 Toolkit.run(
