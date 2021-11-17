@@ -1447,221 +1447,6 @@ class ExecState extends events.EventEmitter {
 
 /***/ }),
 
-/***/ 4087:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Context = void 0;
-const fs_1 = __nccwpck_require__(7147);
-const os_1 = __nccwpck_require__(2037);
-class Context {
-    /**
-     * Hydrate the context from the environment
-     */
-    constructor() {
-        var _a, _b, _c;
-        this.payload = {};
-        if (process.env.GITHUB_EVENT_PATH) {
-            if (fs_1.existsSync(process.env.GITHUB_EVENT_PATH)) {
-                this.payload = JSON.parse(fs_1.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' }));
-            }
-            else {
-                const path = process.env.GITHUB_EVENT_PATH;
-                process.stdout.write(`GITHUB_EVENT_PATH ${path} does not exist${os_1.EOL}`);
-            }
-        }
-        this.eventName = process.env.GITHUB_EVENT_NAME;
-        this.sha = process.env.GITHUB_SHA;
-        this.ref = process.env.GITHUB_REF;
-        this.workflow = process.env.GITHUB_WORKFLOW;
-        this.action = process.env.GITHUB_ACTION;
-        this.actor = process.env.GITHUB_ACTOR;
-        this.job = process.env.GITHUB_JOB;
-        this.runNumber = parseInt(process.env.GITHUB_RUN_NUMBER, 10);
-        this.runId = parseInt(process.env.GITHUB_RUN_ID, 10);
-        this.apiUrl = (_a = process.env.GITHUB_API_URL) !== null && _a !== void 0 ? _a : `https://api.github.com`;
-        this.serverUrl = (_b = process.env.GITHUB_SERVER_URL) !== null && _b !== void 0 ? _b : `https://github.com`;
-        this.graphqlUrl = (_c = process.env.GITHUB_GRAPHQL_URL) !== null && _c !== void 0 ? _c : `https://api.github.com/graphql`;
-    }
-    get issue() {
-        const payload = this.payload;
-        return Object.assign(Object.assign({}, this.repo), { number: (payload.issue || payload.pull_request || payload).number });
-    }
-    get repo() {
-        if (process.env.GITHUB_REPOSITORY) {
-            const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-            return { owner, repo };
-        }
-        if (this.payload.repository) {
-            return {
-                owner: this.payload.repository.owner.login,
-                repo: this.payload.repository.name
-            };
-        }
-        throw new Error("context.repo requires a GITHUB_REPOSITORY environment variable like 'owner/repo'");
-    }
-}
-exports.Context = Context;
-//# sourceMappingURL=context.js.map
-
-/***/ }),
-
-/***/ 5438:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getOctokit = exports.context = void 0;
-const Context = __importStar(__nccwpck_require__(4087));
-const utils_1 = __nccwpck_require__(3030);
-exports.context = new Context.Context();
-/**
- * Returns a hydrated octokit ready to use for GitHub Actions
- *
- * @param     token    the repo PAT or GITHUB_TOKEN
- * @param     options  other options to set
- */
-function getOctokit(token, options) {
-    return new utils_1.GitHub(utils_1.getOctokitOptions(token, options));
-}
-exports.getOctokit = getOctokit;
-//# sourceMappingURL=github.js.map
-
-/***/ }),
-
-/***/ 7914:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getApiBaseUrl = exports.getProxyAgent = exports.getAuthString = void 0;
-const httpClient = __importStar(__nccwpck_require__(9925));
-function getAuthString(token, options) {
-    if (!token && !options.auth) {
-        throw new Error('Parameter token or opts.auth is required');
-    }
-    else if (token && options.auth) {
-        throw new Error('Parameters token and opts.auth may not both be specified');
-    }
-    return typeof options.auth === 'string' ? options.auth : `token ${token}`;
-}
-exports.getAuthString = getAuthString;
-function getProxyAgent(destinationUrl) {
-    const hc = new httpClient.HttpClient();
-    return hc.getAgent(destinationUrl);
-}
-exports.getProxyAgent = getProxyAgent;
-function getApiBaseUrl() {
-    return process.env['GITHUB_API_URL'] || 'https://api.github.com';
-}
-exports.getApiBaseUrl = getApiBaseUrl;
-//# sourceMappingURL=utils.js.map
-
-/***/ }),
-
-/***/ 3030:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getOctokitOptions = exports.GitHub = exports.context = void 0;
-const Context = __importStar(__nccwpck_require__(4087));
-const Utils = __importStar(__nccwpck_require__(7914));
-// octokit + plugins
-const core_1 = __nccwpck_require__(6762);
-const plugin_rest_endpoint_methods_1 = __nccwpck_require__(3044);
-const plugin_paginate_rest_1 = __nccwpck_require__(4193);
-exports.context = new Context.Context();
-const baseUrl = Utils.getApiBaseUrl();
-const defaults = {
-    baseUrl,
-    request: {
-        agent: Utils.getProxyAgent(baseUrl)
-    }
-};
-exports.GitHub = core_1.Octokit.plugin(plugin_rest_endpoint_methods_1.restEndpointMethods, plugin_paginate_rest_1.paginateRest).defaults(defaults);
-/**
- * Convience function to correctly format Octokit Options to pass into the constructor.
- *
- * @param     token    the repo PAT or GITHUB_TOKEN
- * @param     options  other options to set
- */
-function getOctokitOptions(token, options) {
-    const opts = Object.assign({}, options || {}); // Shallow clone - don't mutate the object provided by the caller
-    // Auth
-    const auth = Utils.getAuthString(token, opts);
-    if (auth) {
-        opts.auth = auth;
-    }
-    return opts;
-}
-exports.getOctokitOptions = getOctokitOptions;
-//# sourceMappingURL=utils.js.map
-
-/***/ }),
-
 /***/ 3702:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -2933,190 +2718,6 @@ exports.createTokenAuth = createTokenAuth;
 
 /***/ }),
 
-/***/ 6762:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-var universalUserAgent = __nccwpck_require__(5030);
-var beforeAfterHook = __nccwpck_require__(3682);
-var request = __nccwpck_require__(6234);
-var graphql = __nccwpck_require__(8467);
-var authToken = __nccwpck_require__(334);
-
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-
-function _objectWithoutProperties(source, excluded) {
-  if (source == null) return {};
-
-  var target = _objectWithoutPropertiesLoose(source, excluded);
-
-  var key, i;
-
-  if (Object.getOwnPropertySymbols) {
-    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
-
-    for (i = 0; i < sourceSymbolKeys.length; i++) {
-      key = sourceSymbolKeys[i];
-      if (excluded.indexOf(key) >= 0) continue;
-      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
-      target[key] = source[key];
-    }
-  }
-
-  return target;
-}
-
-const VERSION = "3.5.1";
-
-const _excluded = ["authStrategy"];
-class Octokit {
-  constructor(options = {}) {
-    const hook = new beforeAfterHook.Collection();
-    const requestDefaults = {
-      baseUrl: request.request.endpoint.DEFAULTS.baseUrl,
-      headers: {},
-      request: Object.assign({}, options.request, {
-        // @ts-ignore internal usage only, no need to type
-        hook: hook.bind(null, "request")
-      }),
-      mediaType: {
-        previews: [],
-        format: ""
-      }
-    }; // prepend default user agent with `options.userAgent` if set
-
-    requestDefaults.headers["user-agent"] = [options.userAgent, `octokit-core.js/${VERSION} ${universalUserAgent.getUserAgent()}`].filter(Boolean).join(" ");
-
-    if (options.baseUrl) {
-      requestDefaults.baseUrl = options.baseUrl;
-    }
-
-    if (options.previews) {
-      requestDefaults.mediaType.previews = options.previews;
-    }
-
-    if (options.timeZone) {
-      requestDefaults.headers["time-zone"] = options.timeZone;
-    }
-
-    this.request = request.request.defaults(requestDefaults);
-    this.graphql = graphql.withCustomRequest(this.request).defaults(requestDefaults);
-    this.log = Object.assign({
-      debug: () => {},
-      info: () => {},
-      warn: console.warn.bind(console),
-      error: console.error.bind(console)
-    }, options.log);
-    this.hook = hook; // (1) If neither `options.authStrategy` nor `options.auth` are set, the `octokit` instance
-    //     is unauthenticated. The `this.auth()` method is a no-op and no request hook is registered.
-    // (2) If only `options.auth` is set, use the default token authentication strategy.
-    // (3) If `options.authStrategy` is set then use it and pass in `options.auth`. Always pass own request as many strategies accept a custom request instance.
-    // TODO: type `options.auth` based on `options.authStrategy`.
-
-    if (!options.authStrategy) {
-      if (!options.auth) {
-        // (1)
-        this.auth = async () => ({
-          type: "unauthenticated"
-        });
-      } else {
-        // (2)
-        const auth = authToken.createTokenAuth(options.auth); // @ts-ignore  ¯\_(ツ)_/¯
-
-        hook.wrap("request", auth.hook);
-        this.auth = auth;
-      }
-    } else {
-      const {
-        authStrategy
-      } = options,
-            otherOptions = _objectWithoutProperties(options, _excluded);
-
-      const auth = authStrategy(Object.assign({
-        request: this.request,
-        log: this.log,
-        // we pass the current octokit instance as well as its constructor options
-        // to allow for authentication strategies that return a new octokit instance
-        // that shares the same internal state as the current one. The original
-        // requirement for this was the "event-octokit" authentication strategy
-        // of https://github.com/probot/octokit-auth-probot.
-        octokit: this,
-        octokitOptions: otherOptions
-      }, options.auth)); // @ts-ignore  ¯\_(ツ)_/¯
-
-      hook.wrap("request", auth.hook);
-      this.auth = auth;
-    } // apply plugins
-    // https://stackoverflow.com/a/16345172
-
-
-    const classConstructor = this.constructor;
-    classConstructor.plugins.forEach(plugin => {
-      Object.assign(this, plugin(this, options));
-    });
-  }
-
-  static defaults(defaults) {
-    const OctokitWithDefaults = class extends this {
-      constructor(...args) {
-        const options = args[0] || {};
-
-        if (typeof defaults === "function") {
-          super(defaults(options));
-          return;
-        }
-
-        super(Object.assign({}, defaults, options, options.userAgent && defaults.userAgent ? {
-          userAgent: `${options.userAgent} ${defaults.userAgent}`
-        } : null));
-      }
-
-    };
-    return OctokitWithDefaults;
-  }
-  /**
-   * Attach a plugin (or many) to your Octokit instance.
-   *
-   * @example
-   * const API = Octokit.plugin(plugin1, plugin2, plugin3, ...)
-   */
-
-
-  static plugin(...newPlugins) {
-    var _a;
-
-    const currentPlugins = this.plugins;
-    const NewOctokit = (_a = class extends this {}, _a.plugins = currentPlugins.concat(newPlugins.filter(plugin => !currentPlugins.includes(plugin))), _a);
-    return NewOctokit;
-  }
-
-}
-Octokit.VERSION = VERSION;
-Octokit.plugins = [];
-
-exports.Octokit = Octokit;
-//# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
 /***/ 9440:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -3861,1039 +3462,6 @@ exports.composePaginateRest = composePaginateRest;
 exports.isPaginatingEndpoint = isPaginatingEndpoint;
 exports.paginateRest = paginateRest;
 exports.paginatingEndpoints = paginatingEndpoints;
-//# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
-/***/ 3044:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
-
-  if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
-
-    if (enumerableOnly) {
-      symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      });
-    }
-
-    keys.push.apply(keys, symbols);
-  }
-
-  return keys;
-}
-
-function _objectSpread2(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
-  }
-
-  return target;
-}
-
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
-const Endpoints = {
-  actions: {
-    addSelectedRepoToOrgSecret: ["PUT /orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}"],
-    approveWorkflowRun: ["POST /repos/{owner}/{repo}/actions/runs/{run_id}/approve"],
-    cancelWorkflowRun: ["POST /repos/{owner}/{repo}/actions/runs/{run_id}/cancel"],
-    createOrUpdateEnvironmentSecret: ["PUT /repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}"],
-    createOrUpdateOrgSecret: ["PUT /orgs/{org}/actions/secrets/{secret_name}"],
-    createOrUpdateRepoSecret: ["PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}"],
-    createRegistrationTokenForOrg: ["POST /orgs/{org}/actions/runners/registration-token"],
-    createRegistrationTokenForRepo: ["POST /repos/{owner}/{repo}/actions/runners/registration-token"],
-    createRemoveTokenForOrg: ["POST /orgs/{org}/actions/runners/remove-token"],
-    createRemoveTokenForRepo: ["POST /repos/{owner}/{repo}/actions/runners/remove-token"],
-    createWorkflowDispatch: ["POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches"],
-    deleteArtifact: ["DELETE /repos/{owner}/{repo}/actions/artifacts/{artifact_id}"],
-    deleteEnvironmentSecret: ["DELETE /repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}"],
-    deleteOrgSecret: ["DELETE /orgs/{org}/actions/secrets/{secret_name}"],
-    deleteRepoSecret: ["DELETE /repos/{owner}/{repo}/actions/secrets/{secret_name}"],
-    deleteSelfHostedRunnerFromOrg: ["DELETE /orgs/{org}/actions/runners/{runner_id}"],
-    deleteSelfHostedRunnerFromRepo: ["DELETE /repos/{owner}/{repo}/actions/runners/{runner_id}"],
-    deleteWorkflowRun: ["DELETE /repos/{owner}/{repo}/actions/runs/{run_id}"],
-    deleteWorkflowRunLogs: ["DELETE /repos/{owner}/{repo}/actions/runs/{run_id}/logs"],
-    disableSelectedRepositoryGithubActionsOrganization: ["DELETE /orgs/{org}/actions/permissions/repositories/{repository_id}"],
-    disableWorkflow: ["PUT /repos/{owner}/{repo}/actions/workflows/{workflow_id}/disable"],
-    downloadArtifact: ["GET /repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}"],
-    downloadJobLogsForWorkflowRun: ["GET /repos/{owner}/{repo}/actions/jobs/{job_id}/logs"],
-    downloadWorkflowRunAttemptLogs: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}/logs"],
-    downloadWorkflowRunLogs: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/logs"],
-    enableSelectedRepositoryGithubActionsOrganization: ["PUT /orgs/{org}/actions/permissions/repositories/{repository_id}"],
-    enableWorkflow: ["PUT /repos/{owner}/{repo}/actions/workflows/{workflow_id}/enable"],
-    getAllowedActionsOrganization: ["GET /orgs/{org}/actions/permissions/selected-actions"],
-    getAllowedActionsRepository: ["GET /repos/{owner}/{repo}/actions/permissions/selected-actions"],
-    getArtifact: ["GET /repos/{owner}/{repo}/actions/artifacts/{artifact_id}"],
-    getEnvironmentPublicKey: ["GET /repositories/{repository_id}/environments/{environment_name}/secrets/public-key"],
-    getEnvironmentSecret: ["GET /repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}"],
-    getGithubActionsPermissionsOrganization: ["GET /orgs/{org}/actions/permissions"],
-    getGithubActionsPermissionsRepository: ["GET /repos/{owner}/{repo}/actions/permissions"],
-    getJobForWorkflowRun: ["GET /repos/{owner}/{repo}/actions/jobs/{job_id}"],
-    getOrgPublicKey: ["GET /orgs/{org}/actions/secrets/public-key"],
-    getOrgSecret: ["GET /orgs/{org}/actions/secrets/{secret_name}"],
-    getPendingDeploymentsForRun: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments"],
-    getRepoPermissions: ["GET /repos/{owner}/{repo}/actions/permissions", {}, {
-      renamed: ["actions", "getGithubActionsPermissionsRepository"]
-    }],
-    getRepoPublicKey: ["GET /repos/{owner}/{repo}/actions/secrets/public-key"],
-    getRepoSecret: ["GET /repos/{owner}/{repo}/actions/secrets/{secret_name}"],
-    getReviewsForRun: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/approvals"],
-    getSelfHostedRunnerForOrg: ["GET /orgs/{org}/actions/runners/{runner_id}"],
-    getSelfHostedRunnerForRepo: ["GET /repos/{owner}/{repo}/actions/runners/{runner_id}"],
-    getWorkflow: ["GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}"],
-    getWorkflowRun: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}"],
-    getWorkflowRunAttempt: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}"],
-    getWorkflowRunUsage: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/timing"],
-    getWorkflowUsage: ["GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing"],
-    listArtifactsForRepo: ["GET /repos/{owner}/{repo}/actions/artifacts"],
-    listEnvironmentSecrets: ["GET /repositories/{repository_id}/environments/{environment_name}/secrets"],
-    listJobsForWorkflowRun: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs"],
-    listJobsForWorkflowRunAttempt: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}/jobs"],
-    listOrgSecrets: ["GET /orgs/{org}/actions/secrets"],
-    listRepoSecrets: ["GET /repos/{owner}/{repo}/actions/secrets"],
-    listRepoWorkflows: ["GET /repos/{owner}/{repo}/actions/workflows"],
-    listRunnerApplicationsForOrg: ["GET /orgs/{org}/actions/runners/downloads"],
-    listRunnerApplicationsForRepo: ["GET /repos/{owner}/{repo}/actions/runners/downloads"],
-    listSelectedReposForOrgSecret: ["GET /orgs/{org}/actions/secrets/{secret_name}/repositories"],
-    listSelectedRepositoriesEnabledGithubActionsOrganization: ["GET /orgs/{org}/actions/permissions/repositories"],
-    listSelfHostedRunnersForOrg: ["GET /orgs/{org}/actions/runners"],
-    listSelfHostedRunnersForRepo: ["GET /repos/{owner}/{repo}/actions/runners"],
-    listWorkflowRunArtifacts: ["GET /repos/{owner}/{repo}/actions/runs/{run_id}/artifacts"],
-    listWorkflowRuns: ["GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs"],
-    listWorkflowRunsForRepo: ["GET /repos/{owner}/{repo}/actions/runs"],
-    removeSelectedRepoFromOrgSecret: ["DELETE /orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}"],
-    reviewPendingDeploymentsForRun: ["POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments"],
-    setAllowedActionsOrganization: ["PUT /orgs/{org}/actions/permissions/selected-actions"],
-    setAllowedActionsRepository: ["PUT /repos/{owner}/{repo}/actions/permissions/selected-actions"],
-    setGithubActionsPermissionsOrganization: ["PUT /orgs/{org}/actions/permissions"],
-    setGithubActionsPermissionsRepository: ["PUT /repos/{owner}/{repo}/actions/permissions"],
-    setSelectedReposForOrgSecret: ["PUT /orgs/{org}/actions/secrets/{secret_name}/repositories"],
-    setSelectedRepositoriesEnabledGithubActionsOrganization: ["PUT /orgs/{org}/actions/permissions/repositories"]
-  },
-  activity: {
-    checkRepoIsStarredByAuthenticatedUser: ["GET /user/starred/{owner}/{repo}"],
-    deleteRepoSubscription: ["DELETE /repos/{owner}/{repo}/subscription"],
-    deleteThreadSubscription: ["DELETE /notifications/threads/{thread_id}/subscription"],
-    getFeeds: ["GET /feeds"],
-    getRepoSubscription: ["GET /repos/{owner}/{repo}/subscription"],
-    getThread: ["GET /notifications/threads/{thread_id}"],
-    getThreadSubscriptionForAuthenticatedUser: ["GET /notifications/threads/{thread_id}/subscription"],
-    listEventsForAuthenticatedUser: ["GET /users/{username}/events"],
-    listNotificationsForAuthenticatedUser: ["GET /notifications"],
-    listOrgEventsForAuthenticatedUser: ["GET /users/{username}/events/orgs/{org}"],
-    listPublicEvents: ["GET /events"],
-    listPublicEventsForRepoNetwork: ["GET /networks/{owner}/{repo}/events"],
-    listPublicEventsForUser: ["GET /users/{username}/events/public"],
-    listPublicOrgEvents: ["GET /orgs/{org}/events"],
-    listReceivedEventsForUser: ["GET /users/{username}/received_events"],
-    listReceivedPublicEventsForUser: ["GET /users/{username}/received_events/public"],
-    listRepoEvents: ["GET /repos/{owner}/{repo}/events"],
-    listRepoNotificationsForAuthenticatedUser: ["GET /repos/{owner}/{repo}/notifications"],
-    listReposStarredByAuthenticatedUser: ["GET /user/starred"],
-    listReposStarredByUser: ["GET /users/{username}/starred"],
-    listReposWatchedByUser: ["GET /users/{username}/subscriptions"],
-    listStargazersForRepo: ["GET /repos/{owner}/{repo}/stargazers"],
-    listWatchedReposForAuthenticatedUser: ["GET /user/subscriptions"],
-    listWatchersForRepo: ["GET /repos/{owner}/{repo}/subscribers"],
-    markNotificationsAsRead: ["PUT /notifications"],
-    markRepoNotificationsAsRead: ["PUT /repos/{owner}/{repo}/notifications"],
-    markThreadAsRead: ["PATCH /notifications/threads/{thread_id}"],
-    setRepoSubscription: ["PUT /repos/{owner}/{repo}/subscription"],
-    setThreadSubscription: ["PUT /notifications/threads/{thread_id}/subscription"],
-    starRepoForAuthenticatedUser: ["PUT /user/starred/{owner}/{repo}"],
-    unstarRepoForAuthenticatedUser: ["DELETE /user/starred/{owner}/{repo}"]
-  },
-  apps: {
-    addRepoToInstallation: ["PUT /user/installations/{installation_id}/repositories/{repository_id}", {}, {
-      renamed: ["apps", "addRepoToInstallationForAuthenticatedUser"]
-    }],
-    addRepoToInstallationForAuthenticatedUser: ["PUT /user/installations/{installation_id}/repositories/{repository_id}"],
-    checkToken: ["POST /applications/{client_id}/token"],
-    createContentAttachment: ["POST /content_references/{content_reference_id}/attachments", {
-      mediaType: {
-        previews: ["corsair"]
-      }
-    }],
-    createContentAttachmentForRepo: ["POST /repos/{owner}/{repo}/content_references/{content_reference_id}/attachments", {
-      mediaType: {
-        previews: ["corsair"]
-      }
-    }],
-    createFromManifest: ["POST /app-manifests/{code}/conversions"],
-    createInstallationAccessToken: ["POST /app/installations/{installation_id}/access_tokens"],
-    deleteAuthorization: ["DELETE /applications/{client_id}/grant"],
-    deleteInstallation: ["DELETE /app/installations/{installation_id}"],
-    deleteToken: ["DELETE /applications/{client_id}/token"],
-    getAuthenticated: ["GET /app"],
-    getBySlug: ["GET /apps/{app_slug}"],
-    getInstallation: ["GET /app/installations/{installation_id}"],
-    getOrgInstallation: ["GET /orgs/{org}/installation"],
-    getRepoInstallation: ["GET /repos/{owner}/{repo}/installation"],
-    getSubscriptionPlanForAccount: ["GET /marketplace_listing/accounts/{account_id}"],
-    getSubscriptionPlanForAccountStubbed: ["GET /marketplace_listing/stubbed/accounts/{account_id}"],
-    getUserInstallation: ["GET /users/{username}/installation"],
-    getWebhookConfigForApp: ["GET /app/hook/config"],
-    getWebhookDelivery: ["GET /app/hook/deliveries/{delivery_id}"],
-    listAccountsForPlan: ["GET /marketplace_listing/plans/{plan_id}/accounts"],
-    listAccountsForPlanStubbed: ["GET /marketplace_listing/stubbed/plans/{plan_id}/accounts"],
-    listInstallationReposForAuthenticatedUser: ["GET /user/installations/{installation_id}/repositories"],
-    listInstallations: ["GET /app/installations"],
-    listInstallationsForAuthenticatedUser: ["GET /user/installations"],
-    listPlans: ["GET /marketplace_listing/plans"],
-    listPlansStubbed: ["GET /marketplace_listing/stubbed/plans"],
-    listReposAccessibleToInstallation: ["GET /installation/repositories"],
-    listSubscriptionsForAuthenticatedUser: ["GET /user/marketplace_purchases"],
-    listSubscriptionsForAuthenticatedUserStubbed: ["GET /user/marketplace_purchases/stubbed"],
-    listWebhookDeliveries: ["GET /app/hook/deliveries"],
-    redeliverWebhookDelivery: ["POST /app/hook/deliveries/{delivery_id}/attempts"],
-    removeRepoFromInstallation: ["DELETE /user/installations/{installation_id}/repositories/{repository_id}", {}, {
-      renamed: ["apps", "removeRepoFromInstallationForAuthenticatedUser"]
-    }],
-    removeRepoFromInstallationForAuthenticatedUser: ["DELETE /user/installations/{installation_id}/repositories/{repository_id}"],
-    resetToken: ["PATCH /applications/{client_id}/token"],
-    revokeInstallationAccessToken: ["DELETE /installation/token"],
-    scopeToken: ["POST /applications/{client_id}/token/scoped"],
-    suspendInstallation: ["PUT /app/installations/{installation_id}/suspended"],
-    unsuspendInstallation: ["DELETE /app/installations/{installation_id}/suspended"],
-    updateWebhookConfigForApp: ["PATCH /app/hook/config"]
-  },
-  billing: {
-    getGithubActionsBillingOrg: ["GET /orgs/{org}/settings/billing/actions"],
-    getGithubActionsBillingUser: ["GET /users/{username}/settings/billing/actions"],
-    getGithubPackagesBillingOrg: ["GET /orgs/{org}/settings/billing/packages"],
-    getGithubPackagesBillingUser: ["GET /users/{username}/settings/billing/packages"],
-    getSharedStorageBillingOrg: ["GET /orgs/{org}/settings/billing/shared-storage"],
-    getSharedStorageBillingUser: ["GET /users/{username}/settings/billing/shared-storage"]
-  },
-  checks: {
-    create: ["POST /repos/{owner}/{repo}/check-runs"],
-    createSuite: ["POST /repos/{owner}/{repo}/check-suites"],
-    get: ["GET /repos/{owner}/{repo}/check-runs/{check_run_id}"],
-    getSuite: ["GET /repos/{owner}/{repo}/check-suites/{check_suite_id}"],
-    listAnnotations: ["GET /repos/{owner}/{repo}/check-runs/{check_run_id}/annotations"],
-    listForRef: ["GET /repos/{owner}/{repo}/commits/{ref}/check-runs"],
-    listForSuite: ["GET /repos/{owner}/{repo}/check-suites/{check_suite_id}/check-runs"],
-    listSuitesForRef: ["GET /repos/{owner}/{repo}/commits/{ref}/check-suites"],
-    rerequestRun: ["POST /repos/{owner}/{repo}/check-runs/{check_run_id}/rerequest"],
-    rerequestSuite: ["POST /repos/{owner}/{repo}/check-suites/{check_suite_id}/rerequest"],
-    setSuitesPreferences: ["PATCH /repos/{owner}/{repo}/check-suites/preferences"],
-    update: ["PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}"]
-  },
-  codeScanning: {
-    deleteAnalysis: ["DELETE /repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}{?confirm_delete}"],
-    getAlert: ["GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}", {}, {
-      renamedParameters: {
-        alert_id: "alert_number"
-      }
-    }],
-    getAnalysis: ["GET /repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}"],
-    getSarif: ["GET /repos/{owner}/{repo}/code-scanning/sarifs/{sarif_id}"],
-    listAlertInstances: ["GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/instances"],
-    listAlertsForRepo: ["GET /repos/{owner}/{repo}/code-scanning/alerts"],
-    listAlertsInstances: ["GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/instances", {}, {
-      renamed: ["codeScanning", "listAlertInstances"]
-    }],
-    listRecentAnalyses: ["GET /repos/{owner}/{repo}/code-scanning/analyses"],
-    updateAlert: ["PATCH /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}"],
-    uploadSarif: ["POST /repos/{owner}/{repo}/code-scanning/sarifs"]
-  },
-  codesOfConduct: {
-    getAllCodesOfConduct: ["GET /codes_of_conduct"],
-    getConductCode: ["GET /codes_of_conduct/{key}"]
-  },
-  emojis: {
-    get: ["GET /emojis"]
-  },
-  enterpriseAdmin: {
-    disableSelectedOrganizationGithubActionsEnterprise: ["DELETE /enterprises/{enterprise}/actions/permissions/organizations/{org_id}"],
-    enableSelectedOrganizationGithubActionsEnterprise: ["PUT /enterprises/{enterprise}/actions/permissions/organizations/{org_id}"],
-    getAllowedActionsEnterprise: ["GET /enterprises/{enterprise}/actions/permissions/selected-actions"],
-    getGithubActionsPermissionsEnterprise: ["GET /enterprises/{enterprise}/actions/permissions"],
-    listSelectedOrganizationsEnabledGithubActionsEnterprise: ["GET /enterprises/{enterprise}/actions/permissions/organizations"],
-    setAllowedActionsEnterprise: ["PUT /enterprises/{enterprise}/actions/permissions/selected-actions"],
-    setGithubActionsPermissionsEnterprise: ["PUT /enterprises/{enterprise}/actions/permissions"],
-    setSelectedOrganizationsEnabledGithubActionsEnterprise: ["PUT /enterprises/{enterprise}/actions/permissions/organizations"]
-  },
-  gists: {
-    checkIsStarred: ["GET /gists/{gist_id}/star"],
-    create: ["POST /gists"],
-    createComment: ["POST /gists/{gist_id}/comments"],
-    delete: ["DELETE /gists/{gist_id}"],
-    deleteComment: ["DELETE /gists/{gist_id}/comments/{comment_id}"],
-    fork: ["POST /gists/{gist_id}/forks"],
-    get: ["GET /gists/{gist_id}"],
-    getComment: ["GET /gists/{gist_id}/comments/{comment_id}"],
-    getRevision: ["GET /gists/{gist_id}/{sha}"],
-    list: ["GET /gists"],
-    listComments: ["GET /gists/{gist_id}/comments"],
-    listCommits: ["GET /gists/{gist_id}/commits"],
-    listForUser: ["GET /users/{username}/gists"],
-    listForks: ["GET /gists/{gist_id}/forks"],
-    listPublic: ["GET /gists/public"],
-    listStarred: ["GET /gists/starred"],
-    star: ["PUT /gists/{gist_id}/star"],
-    unstar: ["DELETE /gists/{gist_id}/star"],
-    update: ["PATCH /gists/{gist_id}"],
-    updateComment: ["PATCH /gists/{gist_id}/comments/{comment_id}"]
-  },
-  git: {
-    createBlob: ["POST /repos/{owner}/{repo}/git/blobs"],
-    createCommit: ["POST /repos/{owner}/{repo}/git/commits"],
-    createRef: ["POST /repos/{owner}/{repo}/git/refs"],
-    createTag: ["POST /repos/{owner}/{repo}/git/tags"],
-    createTree: ["POST /repos/{owner}/{repo}/git/trees"],
-    deleteRef: ["DELETE /repos/{owner}/{repo}/git/refs/{ref}"],
-    getBlob: ["GET /repos/{owner}/{repo}/git/blobs/{file_sha}"],
-    getCommit: ["GET /repos/{owner}/{repo}/git/commits/{commit_sha}"],
-    getRef: ["GET /repos/{owner}/{repo}/git/ref/{ref}"],
-    getTag: ["GET /repos/{owner}/{repo}/git/tags/{tag_sha}"],
-    getTree: ["GET /repos/{owner}/{repo}/git/trees/{tree_sha}"],
-    listMatchingRefs: ["GET /repos/{owner}/{repo}/git/matching-refs/{ref}"],
-    updateRef: ["PATCH /repos/{owner}/{repo}/git/refs/{ref}"]
-  },
-  gitignore: {
-    getAllTemplates: ["GET /gitignore/templates"],
-    getTemplate: ["GET /gitignore/templates/{name}"]
-  },
-  interactions: {
-    getRestrictionsForAuthenticatedUser: ["GET /user/interaction-limits"],
-    getRestrictionsForOrg: ["GET /orgs/{org}/interaction-limits"],
-    getRestrictionsForRepo: ["GET /repos/{owner}/{repo}/interaction-limits"],
-    getRestrictionsForYourPublicRepos: ["GET /user/interaction-limits", {}, {
-      renamed: ["interactions", "getRestrictionsForAuthenticatedUser"]
-    }],
-    removeRestrictionsForAuthenticatedUser: ["DELETE /user/interaction-limits"],
-    removeRestrictionsForOrg: ["DELETE /orgs/{org}/interaction-limits"],
-    removeRestrictionsForRepo: ["DELETE /repos/{owner}/{repo}/interaction-limits"],
-    removeRestrictionsForYourPublicRepos: ["DELETE /user/interaction-limits", {}, {
-      renamed: ["interactions", "removeRestrictionsForAuthenticatedUser"]
-    }],
-    setRestrictionsForAuthenticatedUser: ["PUT /user/interaction-limits"],
-    setRestrictionsForOrg: ["PUT /orgs/{org}/interaction-limits"],
-    setRestrictionsForRepo: ["PUT /repos/{owner}/{repo}/interaction-limits"],
-    setRestrictionsForYourPublicRepos: ["PUT /user/interaction-limits", {}, {
-      renamed: ["interactions", "setRestrictionsForAuthenticatedUser"]
-    }]
-  },
-  issues: {
-    addAssignees: ["POST /repos/{owner}/{repo}/issues/{issue_number}/assignees"],
-    addLabels: ["POST /repos/{owner}/{repo}/issues/{issue_number}/labels"],
-    checkUserCanBeAssigned: ["GET /repos/{owner}/{repo}/assignees/{assignee}"],
-    create: ["POST /repos/{owner}/{repo}/issues"],
-    createComment: ["POST /repos/{owner}/{repo}/issues/{issue_number}/comments"],
-    createLabel: ["POST /repos/{owner}/{repo}/labels"],
-    createMilestone: ["POST /repos/{owner}/{repo}/milestones"],
-    deleteComment: ["DELETE /repos/{owner}/{repo}/issues/comments/{comment_id}"],
-    deleteLabel: ["DELETE /repos/{owner}/{repo}/labels/{name}"],
-    deleteMilestone: ["DELETE /repos/{owner}/{repo}/milestones/{milestone_number}"],
-    get: ["GET /repos/{owner}/{repo}/issues/{issue_number}"],
-    getComment: ["GET /repos/{owner}/{repo}/issues/comments/{comment_id}"],
-    getEvent: ["GET /repos/{owner}/{repo}/issues/events/{event_id}"],
-    getLabel: ["GET /repos/{owner}/{repo}/labels/{name}"],
-    getMilestone: ["GET /repos/{owner}/{repo}/milestones/{milestone_number}"],
-    list: ["GET /issues"],
-    listAssignees: ["GET /repos/{owner}/{repo}/assignees"],
-    listComments: ["GET /repos/{owner}/{repo}/issues/{issue_number}/comments"],
-    listCommentsForRepo: ["GET /repos/{owner}/{repo}/issues/comments"],
-    listEvents: ["GET /repos/{owner}/{repo}/issues/{issue_number}/events"],
-    listEventsForRepo: ["GET /repos/{owner}/{repo}/issues/events"],
-    listEventsForTimeline: ["GET /repos/{owner}/{repo}/issues/{issue_number}/timeline"],
-    listForAuthenticatedUser: ["GET /user/issues"],
-    listForOrg: ["GET /orgs/{org}/issues"],
-    listForRepo: ["GET /repos/{owner}/{repo}/issues"],
-    listLabelsForMilestone: ["GET /repos/{owner}/{repo}/milestones/{milestone_number}/labels"],
-    listLabelsForRepo: ["GET /repos/{owner}/{repo}/labels"],
-    listLabelsOnIssue: ["GET /repos/{owner}/{repo}/issues/{issue_number}/labels"],
-    listMilestones: ["GET /repos/{owner}/{repo}/milestones"],
-    lock: ["PUT /repos/{owner}/{repo}/issues/{issue_number}/lock"],
-    removeAllLabels: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels"],
-    removeAssignees: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/assignees"],
-    removeLabel: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}"],
-    setLabels: ["PUT /repos/{owner}/{repo}/issues/{issue_number}/labels"],
-    unlock: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/lock"],
-    update: ["PATCH /repos/{owner}/{repo}/issues/{issue_number}"],
-    updateComment: ["PATCH /repos/{owner}/{repo}/issues/comments/{comment_id}"],
-    updateLabel: ["PATCH /repos/{owner}/{repo}/labels/{name}"],
-    updateMilestone: ["PATCH /repos/{owner}/{repo}/milestones/{milestone_number}"]
-  },
-  licenses: {
-    get: ["GET /licenses/{license}"],
-    getAllCommonlyUsed: ["GET /licenses"],
-    getForRepo: ["GET /repos/{owner}/{repo}/license"]
-  },
-  markdown: {
-    render: ["POST /markdown"],
-    renderRaw: ["POST /markdown/raw", {
-      headers: {
-        "content-type": "text/plain; charset=utf-8"
-      }
-    }]
-  },
-  meta: {
-    get: ["GET /meta"],
-    getOctocat: ["GET /octocat"],
-    getZen: ["GET /zen"],
-    root: ["GET /"]
-  },
-  migrations: {
-    cancelImport: ["DELETE /repos/{owner}/{repo}/import"],
-    deleteArchiveForAuthenticatedUser: ["DELETE /user/migrations/{migration_id}/archive"],
-    deleteArchiveForOrg: ["DELETE /orgs/{org}/migrations/{migration_id}/archive"],
-    downloadArchiveForOrg: ["GET /orgs/{org}/migrations/{migration_id}/archive"],
-    getArchiveForAuthenticatedUser: ["GET /user/migrations/{migration_id}/archive"],
-    getCommitAuthors: ["GET /repos/{owner}/{repo}/import/authors"],
-    getImportStatus: ["GET /repos/{owner}/{repo}/import"],
-    getLargeFiles: ["GET /repos/{owner}/{repo}/import/large_files"],
-    getStatusForAuthenticatedUser: ["GET /user/migrations/{migration_id}"],
-    getStatusForOrg: ["GET /orgs/{org}/migrations/{migration_id}"],
-    listForAuthenticatedUser: ["GET /user/migrations"],
-    listForOrg: ["GET /orgs/{org}/migrations"],
-    listReposForAuthenticatedUser: ["GET /user/migrations/{migration_id}/repositories"],
-    listReposForOrg: ["GET /orgs/{org}/migrations/{migration_id}/repositories"],
-    listReposForUser: ["GET /user/migrations/{migration_id}/repositories", {}, {
-      renamed: ["migrations", "listReposForAuthenticatedUser"]
-    }],
-    mapCommitAuthor: ["PATCH /repos/{owner}/{repo}/import/authors/{author_id}"],
-    setLfsPreference: ["PATCH /repos/{owner}/{repo}/import/lfs"],
-    startForAuthenticatedUser: ["POST /user/migrations"],
-    startForOrg: ["POST /orgs/{org}/migrations"],
-    startImport: ["PUT /repos/{owner}/{repo}/import"],
-    unlockRepoForAuthenticatedUser: ["DELETE /user/migrations/{migration_id}/repos/{repo_name}/lock"],
-    unlockRepoForOrg: ["DELETE /orgs/{org}/migrations/{migration_id}/repos/{repo_name}/lock"],
-    updateImport: ["PATCH /repos/{owner}/{repo}/import"]
-  },
-  orgs: {
-    blockUser: ["PUT /orgs/{org}/blocks/{username}"],
-    cancelInvitation: ["DELETE /orgs/{org}/invitations/{invitation_id}"],
-    checkBlockedUser: ["GET /orgs/{org}/blocks/{username}"],
-    checkMembershipForUser: ["GET /orgs/{org}/members/{username}"],
-    checkPublicMembershipForUser: ["GET /orgs/{org}/public_members/{username}"],
-    convertMemberToOutsideCollaborator: ["PUT /orgs/{org}/outside_collaborators/{username}"],
-    createInvitation: ["POST /orgs/{org}/invitations"],
-    createWebhook: ["POST /orgs/{org}/hooks"],
-    deleteWebhook: ["DELETE /orgs/{org}/hooks/{hook_id}"],
-    get: ["GET /orgs/{org}"],
-    getMembershipForAuthenticatedUser: ["GET /user/memberships/orgs/{org}"],
-    getMembershipForUser: ["GET /orgs/{org}/memberships/{username}"],
-    getWebhook: ["GET /orgs/{org}/hooks/{hook_id}"],
-    getWebhookConfigForOrg: ["GET /orgs/{org}/hooks/{hook_id}/config"],
-    getWebhookDelivery: ["GET /orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}"],
-    list: ["GET /organizations"],
-    listAppInstallations: ["GET /orgs/{org}/installations"],
-    listBlockedUsers: ["GET /orgs/{org}/blocks"],
-    listFailedInvitations: ["GET /orgs/{org}/failed_invitations"],
-    listForAuthenticatedUser: ["GET /user/orgs"],
-    listForUser: ["GET /users/{username}/orgs"],
-    listInvitationTeams: ["GET /orgs/{org}/invitations/{invitation_id}/teams"],
-    listMembers: ["GET /orgs/{org}/members"],
-    listMembershipsForAuthenticatedUser: ["GET /user/memberships/orgs"],
-    listOutsideCollaborators: ["GET /orgs/{org}/outside_collaborators"],
-    listPendingInvitations: ["GET /orgs/{org}/invitations"],
-    listPublicMembers: ["GET /orgs/{org}/public_members"],
-    listWebhookDeliveries: ["GET /orgs/{org}/hooks/{hook_id}/deliveries"],
-    listWebhooks: ["GET /orgs/{org}/hooks"],
-    pingWebhook: ["POST /orgs/{org}/hooks/{hook_id}/pings"],
-    redeliverWebhookDelivery: ["POST /orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}/attempts"],
-    removeMember: ["DELETE /orgs/{org}/members/{username}"],
-    removeMembershipForUser: ["DELETE /orgs/{org}/memberships/{username}"],
-    removeOutsideCollaborator: ["DELETE /orgs/{org}/outside_collaborators/{username}"],
-    removePublicMembershipForAuthenticatedUser: ["DELETE /orgs/{org}/public_members/{username}"],
-    setMembershipForUser: ["PUT /orgs/{org}/memberships/{username}"],
-    setPublicMembershipForAuthenticatedUser: ["PUT /orgs/{org}/public_members/{username}"],
-    unblockUser: ["DELETE /orgs/{org}/blocks/{username}"],
-    update: ["PATCH /orgs/{org}"],
-    updateMembershipForAuthenticatedUser: ["PATCH /user/memberships/orgs/{org}"],
-    updateWebhook: ["PATCH /orgs/{org}/hooks/{hook_id}"],
-    updateWebhookConfigForOrg: ["PATCH /orgs/{org}/hooks/{hook_id}/config"]
-  },
-  packages: {
-    deletePackageForAuthenticatedUser: ["DELETE /user/packages/{package_type}/{package_name}"],
-    deletePackageForOrg: ["DELETE /orgs/{org}/packages/{package_type}/{package_name}"],
-    deletePackageForUser: ["DELETE /users/{username}/packages/{package_type}/{package_name}"],
-    deletePackageVersionForAuthenticatedUser: ["DELETE /user/packages/{package_type}/{package_name}/versions/{package_version_id}"],
-    deletePackageVersionForOrg: ["DELETE /orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}"],
-    deletePackageVersionForUser: ["DELETE /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}"],
-    getAllPackageVersionsForAPackageOwnedByAnOrg: ["GET /orgs/{org}/packages/{package_type}/{package_name}/versions", {}, {
-      renamed: ["packages", "getAllPackageVersionsForPackageOwnedByOrg"]
-    }],
-    getAllPackageVersionsForAPackageOwnedByTheAuthenticatedUser: ["GET /user/packages/{package_type}/{package_name}/versions", {}, {
-      renamed: ["packages", "getAllPackageVersionsForPackageOwnedByAuthenticatedUser"]
-    }],
-    getAllPackageVersionsForPackageOwnedByAuthenticatedUser: ["GET /user/packages/{package_type}/{package_name}/versions"],
-    getAllPackageVersionsForPackageOwnedByOrg: ["GET /orgs/{org}/packages/{package_type}/{package_name}/versions"],
-    getAllPackageVersionsForPackageOwnedByUser: ["GET /users/{username}/packages/{package_type}/{package_name}/versions"],
-    getPackageForAuthenticatedUser: ["GET /user/packages/{package_type}/{package_name}"],
-    getPackageForOrganization: ["GET /orgs/{org}/packages/{package_type}/{package_name}"],
-    getPackageForUser: ["GET /users/{username}/packages/{package_type}/{package_name}"],
-    getPackageVersionForAuthenticatedUser: ["GET /user/packages/{package_type}/{package_name}/versions/{package_version_id}"],
-    getPackageVersionForOrganization: ["GET /orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}"],
-    getPackageVersionForUser: ["GET /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}"],
-    listPackagesForAuthenticatedUser: ["GET /user/packages"],
-    listPackagesForOrganization: ["GET /orgs/{org}/packages"],
-    listPackagesForUser: ["GET /users/{username}/packages"],
-    restorePackageForAuthenticatedUser: ["POST /user/packages/{package_type}/{package_name}/restore{?token}"],
-    restorePackageForOrg: ["POST /orgs/{org}/packages/{package_type}/{package_name}/restore{?token}"],
-    restorePackageForUser: ["POST /users/{username}/packages/{package_type}/{package_name}/restore{?token}"],
-    restorePackageVersionForAuthenticatedUser: ["POST /user/packages/{package_type}/{package_name}/versions/{package_version_id}/restore"],
-    restorePackageVersionForOrg: ["POST /orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}/restore"],
-    restorePackageVersionForUser: ["POST /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}/restore"]
-  },
-  projects: {
-    addCollaborator: ["PUT /projects/{project_id}/collaborators/{username}"],
-    createCard: ["POST /projects/columns/{column_id}/cards"],
-    createColumn: ["POST /projects/{project_id}/columns"],
-    createForAuthenticatedUser: ["POST /user/projects"],
-    createForOrg: ["POST /orgs/{org}/projects"],
-    createForRepo: ["POST /repos/{owner}/{repo}/projects"],
-    delete: ["DELETE /projects/{project_id}"],
-    deleteCard: ["DELETE /projects/columns/cards/{card_id}"],
-    deleteColumn: ["DELETE /projects/columns/{column_id}"],
-    get: ["GET /projects/{project_id}"],
-    getCard: ["GET /projects/columns/cards/{card_id}"],
-    getColumn: ["GET /projects/columns/{column_id}"],
-    getPermissionForUser: ["GET /projects/{project_id}/collaborators/{username}/permission"],
-    listCards: ["GET /projects/columns/{column_id}/cards"],
-    listCollaborators: ["GET /projects/{project_id}/collaborators"],
-    listColumns: ["GET /projects/{project_id}/columns"],
-    listForOrg: ["GET /orgs/{org}/projects"],
-    listForRepo: ["GET /repos/{owner}/{repo}/projects"],
-    listForUser: ["GET /users/{username}/projects"],
-    moveCard: ["POST /projects/columns/cards/{card_id}/moves"],
-    moveColumn: ["POST /projects/columns/{column_id}/moves"],
-    removeCollaborator: ["DELETE /projects/{project_id}/collaborators/{username}"],
-    update: ["PATCH /projects/{project_id}"],
-    updateCard: ["PATCH /projects/columns/cards/{card_id}"],
-    updateColumn: ["PATCH /projects/columns/{column_id}"]
-  },
-  pulls: {
-    checkIfMerged: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/merge"],
-    create: ["POST /repos/{owner}/{repo}/pulls"],
-    createReplyForReviewComment: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies"],
-    createReview: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews"],
-    createReviewComment: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/comments"],
-    deletePendingReview: ["DELETE /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}"],
-    deleteReviewComment: ["DELETE /repos/{owner}/{repo}/pulls/comments/{comment_id}"],
-    dismissReview: ["PUT /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals"],
-    get: ["GET /repos/{owner}/{repo}/pulls/{pull_number}"],
-    getReview: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}"],
-    getReviewComment: ["GET /repos/{owner}/{repo}/pulls/comments/{comment_id}"],
-    list: ["GET /repos/{owner}/{repo}/pulls"],
-    listCommentsForReview: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments"],
-    listCommits: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/commits"],
-    listFiles: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/files"],
-    listRequestedReviewers: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers"],
-    listReviewComments: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/comments"],
-    listReviewCommentsForRepo: ["GET /repos/{owner}/{repo}/pulls/comments"],
-    listReviews: ["GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews"],
-    merge: ["PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge"],
-    removeRequestedReviewers: ["DELETE /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers"],
-    requestReviewers: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers"],
-    submitReview: ["POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events"],
-    update: ["PATCH /repos/{owner}/{repo}/pulls/{pull_number}"],
-    updateBranch: ["PUT /repos/{owner}/{repo}/pulls/{pull_number}/update-branch"],
-    updateReview: ["PUT /repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}"],
-    updateReviewComment: ["PATCH /repos/{owner}/{repo}/pulls/comments/{comment_id}"]
-  },
-  rateLimit: {
-    get: ["GET /rate_limit"]
-  },
-  reactions: {
-    createForCommitComment: ["POST /repos/{owner}/{repo}/comments/{comment_id}/reactions"],
-    createForIssue: ["POST /repos/{owner}/{repo}/issues/{issue_number}/reactions"],
-    createForIssueComment: ["POST /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions"],
-    createForPullRequestReviewComment: ["POST /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions"],
-    createForRelease: ["POST /repos/{owner}/{repo}/releases/{release_id}/reactions"],
-    createForTeamDiscussionCommentInOrg: ["POST /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions"],
-    createForTeamDiscussionInOrg: ["POST /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions"],
-    deleteForCommitComment: ["DELETE /repos/{owner}/{repo}/comments/{comment_id}/reactions/{reaction_id}"],
-    deleteForIssue: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}"],
-    deleteForIssueComment: ["DELETE /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions/{reaction_id}"],
-    deleteForPullRequestComment: ["DELETE /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions/{reaction_id}"],
-    deleteForTeamDiscussion: ["DELETE /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions/{reaction_id}"],
-    deleteForTeamDiscussionComment: ["DELETE /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions/{reaction_id}"],
-    listForCommitComment: ["GET /repos/{owner}/{repo}/comments/{comment_id}/reactions"],
-    listForIssue: ["GET /repos/{owner}/{repo}/issues/{issue_number}/reactions"],
-    listForIssueComment: ["GET /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions"],
-    listForPullRequestReviewComment: ["GET /repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions"],
-    listForTeamDiscussionCommentInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions"],
-    listForTeamDiscussionInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions"]
-  },
-  repos: {
-    acceptInvitation: ["PATCH /user/repository_invitations/{invitation_id}", {}, {
-      renamed: ["repos", "acceptInvitationForAuthenticatedUser"]
-    }],
-    acceptInvitationForAuthenticatedUser: ["PATCH /user/repository_invitations/{invitation_id}"],
-    addAppAccessRestrictions: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", {}, {
-      mapToData: "apps"
-    }],
-    addCollaborator: ["PUT /repos/{owner}/{repo}/collaborators/{username}"],
-    addStatusCheckContexts: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", {}, {
-      mapToData: "contexts"
-    }],
-    addTeamAccessRestrictions: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", {}, {
-      mapToData: "teams"
-    }],
-    addUserAccessRestrictions: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", {}, {
-      mapToData: "users"
-    }],
-    checkCollaborator: ["GET /repos/{owner}/{repo}/collaborators/{username}"],
-    checkVulnerabilityAlerts: ["GET /repos/{owner}/{repo}/vulnerability-alerts"],
-    compareCommits: ["GET /repos/{owner}/{repo}/compare/{base}...{head}"],
-    compareCommitsWithBasehead: ["GET /repos/{owner}/{repo}/compare/{basehead}"],
-    createAutolink: ["POST /repos/{owner}/{repo}/autolinks"],
-    createCommitComment: ["POST /repos/{owner}/{repo}/commits/{commit_sha}/comments"],
-    createCommitSignatureProtection: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/required_signatures"],
-    createCommitStatus: ["POST /repos/{owner}/{repo}/statuses/{sha}"],
-    createDeployKey: ["POST /repos/{owner}/{repo}/keys"],
-    createDeployment: ["POST /repos/{owner}/{repo}/deployments"],
-    createDeploymentStatus: ["POST /repos/{owner}/{repo}/deployments/{deployment_id}/statuses"],
-    createDispatchEvent: ["POST /repos/{owner}/{repo}/dispatches"],
-    createForAuthenticatedUser: ["POST /user/repos"],
-    createFork: ["POST /repos/{owner}/{repo}/forks"],
-    createInOrg: ["POST /orgs/{org}/repos"],
-    createOrUpdateEnvironment: ["PUT /repos/{owner}/{repo}/environments/{environment_name}"],
-    createOrUpdateFileContents: ["PUT /repos/{owner}/{repo}/contents/{path}"],
-    createPagesSite: ["POST /repos/{owner}/{repo}/pages"],
-    createRelease: ["POST /repos/{owner}/{repo}/releases"],
-    createUsingTemplate: ["POST /repos/{template_owner}/{template_repo}/generate"],
-    createWebhook: ["POST /repos/{owner}/{repo}/hooks"],
-    declineInvitation: ["DELETE /user/repository_invitations/{invitation_id}", {}, {
-      renamed: ["repos", "declineInvitationForAuthenticatedUser"]
-    }],
-    declineInvitationForAuthenticatedUser: ["DELETE /user/repository_invitations/{invitation_id}"],
-    delete: ["DELETE /repos/{owner}/{repo}"],
-    deleteAccessRestrictions: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/restrictions"],
-    deleteAdminBranchProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins"],
-    deleteAnEnvironment: ["DELETE /repos/{owner}/{repo}/environments/{environment_name}"],
-    deleteAutolink: ["DELETE /repos/{owner}/{repo}/autolinks/{autolink_id}"],
-    deleteBranchProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection"],
-    deleteCommitComment: ["DELETE /repos/{owner}/{repo}/comments/{comment_id}"],
-    deleteCommitSignatureProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/required_signatures"],
-    deleteDeployKey: ["DELETE /repos/{owner}/{repo}/keys/{key_id}"],
-    deleteDeployment: ["DELETE /repos/{owner}/{repo}/deployments/{deployment_id}"],
-    deleteFile: ["DELETE /repos/{owner}/{repo}/contents/{path}"],
-    deleteInvitation: ["DELETE /repos/{owner}/{repo}/invitations/{invitation_id}"],
-    deletePagesSite: ["DELETE /repos/{owner}/{repo}/pages"],
-    deletePullRequestReviewProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews"],
-    deleteRelease: ["DELETE /repos/{owner}/{repo}/releases/{release_id}"],
-    deleteReleaseAsset: ["DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}"],
-    deleteWebhook: ["DELETE /repos/{owner}/{repo}/hooks/{hook_id}"],
-    disableAutomatedSecurityFixes: ["DELETE /repos/{owner}/{repo}/automated-security-fixes"],
-    disableLfsForRepo: ["DELETE /repos/{owner}/{repo}/lfs"],
-    disableVulnerabilityAlerts: ["DELETE /repos/{owner}/{repo}/vulnerability-alerts"],
-    downloadArchive: ["GET /repos/{owner}/{repo}/zipball/{ref}", {}, {
-      renamed: ["repos", "downloadZipballArchive"]
-    }],
-    downloadTarballArchive: ["GET /repos/{owner}/{repo}/tarball/{ref}"],
-    downloadZipballArchive: ["GET /repos/{owner}/{repo}/zipball/{ref}"],
-    enableAutomatedSecurityFixes: ["PUT /repos/{owner}/{repo}/automated-security-fixes"],
-    enableLfsForRepo: ["PUT /repos/{owner}/{repo}/lfs"],
-    enableVulnerabilityAlerts: ["PUT /repos/{owner}/{repo}/vulnerability-alerts"],
-    generateReleaseNotes: ["POST /repos/{owner}/{repo}/releases/generate-notes"],
-    get: ["GET /repos/{owner}/{repo}"],
-    getAccessRestrictions: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/restrictions"],
-    getAdminBranchProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins"],
-    getAllEnvironments: ["GET /repos/{owner}/{repo}/environments"],
-    getAllStatusCheckContexts: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts"],
-    getAllTopics: ["GET /repos/{owner}/{repo}/topics", {
-      mediaType: {
-        previews: ["mercy"]
-      }
-    }],
-    getAppsWithAccessToProtectedBranch: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps"],
-    getAutolink: ["GET /repos/{owner}/{repo}/autolinks/{autolink_id}"],
-    getBranch: ["GET /repos/{owner}/{repo}/branches/{branch}"],
-    getBranchProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection"],
-    getClones: ["GET /repos/{owner}/{repo}/traffic/clones"],
-    getCodeFrequencyStats: ["GET /repos/{owner}/{repo}/stats/code_frequency"],
-    getCollaboratorPermissionLevel: ["GET /repos/{owner}/{repo}/collaborators/{username}/permission"],
-    getCombinedStatusForRef: ["GET /repos/{owner}/{repo}/commits/{ref}/status"],
-    getCommit: ["GET /repos/{owner}/{repo}/commits/{ref}"],
-    getCommitActivityStats: ["GET /repos/{owner}/{repo}/stats/commit_activity"],
-    getCommitComment: ["GET /repos/{owner}/{repo}/comments/{comment_id}"],
-    getCommitSignatureProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/required_signatures"],
-    getCommunityProfileMetrics: ["GET /repos/{owner}/{repo}/community/profile"],
-    getContent: ["GET /repos/{owner}/{repo}/contents/{path}"],
-    getContributorsStats: ["GET /repos/{owner}/{repo}/stats/contributors"],
-    getDeployKey: ["GET /repos/{owner}/{repo}/keys/{key_id}"],
-    getDeployment: ["GET /repos/{owner}/{repo}/deployments/{deployment_id}"],
-    getDeploymentStatus: ["GET /repos/{owner}/{repo}/deployments/{deployment_id}/statuses/{status_id}"],
-    getEnvironment: ["GET /repos/{owner}/{repo}/environments/{environment_name}"],
-    getLatestPagesBuild: ["GET /repos/{owner}/{repo}/pages/builds/latest"],
-    getLatestRelease: ["GET /repos/{owner}/{repo}/releases/latest"],
-    getPages: ["GET /repos/{owner}/{repo}/pages"],
-    getPagesBuild: ["GET /repos/{owner}/{repo}/pages/builds/{build_id}"],
-    getPagesHealthCheck: ["GET /repos/{owner}/{repo}/pages/health"],
-    getParticipationStats: ["GET /repos/{owner}/{repo}/stats/participation"],
-    getPullRequestReviewProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews"],
-    getPunchCardStats: ["GET /repos/{owner}/{repo}/stats/punch_card"],
-    getReadme: ["GET /repos/{owner}/{repo}/readme"],
-    getReadmeInDirectory: ["GET /repos/{owner}/{repo}/readme/{dir}"],
-    getRelease: ["GET /repos/{owner}/{repo}/releases/{release_id}"],
-    getReleaseAsset: ["GET /repos/{owner}/{repo}/releases/assets/{asset_id}"],
-    getReleaseByTag: ["GET /repos/{owner}/{repo}/releases/tags/{tag}"],
-    getStatusChecksProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks"],
-    getTeamsWithAccessToProtectedBranch: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams"],
-    getTopPaths: ["GET /repos/{owner}/{repo}/traffic/popular/paths"],
-    getTopReferrers: ["GET /repos/{owner}/{repo}/traffic/popular/referrers"],
-    getUsersWithAccessToProtectedBranch: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users"],
-    getViews: ["GET /repos/{owner}/{repo}/traffic/views"],
-    getWebhook: ["GET /repos/{owner}/{repo}/hooks/{hook_id}"],
-    getWebhookConfigForRepo: ["GET /repos/{owner}/{repo}/hooks/{hook_id}/config"],
-    getWebhookDelivery: ["GET /repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}"],
-    listAutolinks: ["GET /repos/{owner}/{repo}/autolinks"],
-    listBranches: ["GET /repos/{owner}/{repo}/branches"],
-    listBranchesForHeadCommit: ["GET /repos/{owner}/{repo}/commits/{commit_sha}/branches-where-head"],
-    listCollaborators: ["GET /repos/{owner}/{repo}/collaborators"],
-    listCommentsForCommit: ["GET /repos/{owner}/{repo}/commits/{commit_sha}/comments"],
-    listCommitCommentsForRepo: ["GET /repos/{owner}/{repo}/comments"],
-    listCommitStatusesForRef: ["GET /repos/{owner}/{repo}/commits/{ref}/statuses"],
-    listCommits: ["GET /repos/{owner}/{repo}/commits"],
-    listContributors: ["GET /repos/{owner}/{repo}/contributors"],
-    listDeployKeys: ["GET /repos/{owner}/{repo}/keys"],
-    listDeploymentStatuses: ["GET /repos/{owner}/{repo}/deployments/{deployment_id}/statuses"],
-    listDeployments: ["GET /repos/{owner}/{repo}/deployments"],
-    listForAuthenticatedUser: ["GET /user/repos"],
-    listForOrg: ["GET /orgs/{org}/repos"],
-    listForUser: ["GET /users/{username}/repos"],
-    listForks: ["GET /repos/{owner}/{repo}/forks"],
-    listInvitations: ["GET /repos/{owner}/{repo}/invitations"],
-    listInvitationsForAuthenticatedUser: ["GET /user/repository_invitations"],
-    listLanguages: ["GET /repos/{owner}/{repo}/languages"],
-    listPagesBuilds: ["GET /repos/{owner}/{repo}/pages/builds"],
-    listPublic: ["GET /repositories"],
-    listPullRequestsAssociatedWithCommit: ["GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls"],
-    listReleaseAssets: ["GET /repos/{owner}/{repo}/releases/{release_id}/assets"],
-    listReleases: ["GET /repos/{owner}/{repo}/releases"],
-    listTags: ["GET /repos/{owner}/{repo}/tags"],
-    listTeams: ["GET /repos/{owner}/{repo}/teams"],
-    listWebhookDeliveries: ["GET /repos/{owner}/{repo}/hooks/{hook_id}/deliveries"],
-    listWebhooks: ["GET /repos/{owner}/{repo}/hooks"],
-    merge: ["POST /repos/{owner}/{repo}/merges"],
-    mergeUpstream: ["POST /repos/{owner}/{repo}/merge-upstream"],
-    pingWebhook: ["POST /repos/{owner}/{repo}/hooks/{hook_id}/pings"],
-    redeliverWebhookDelivery: ["POST /repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}/attempts"],
-    removeAppAccessRestrictions: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", {}, {
-      mapToData: "apps"
-    }],
-    removeCollaborator: ["DELETE /repos/{owner}/{repo}/collaborators/{username}"],
-    removeStatusCheckContexts: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", {}, {
-      mapToData: "contexts"
-    }],
-    removeStatusCheckProtection: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks"],
-    removeTeamAccessRestrictions: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", {}, {
-      mapToData: "teams"
-    }],
-    removeUserAccessRestrictions: ["DELETE /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", {}, {
-      mapToData: "users"
-    }],
-    renameBranch: ["POST /repos/{owner}/{repo}/branches/{branch}/rename"],
-    replaceAllTopics: ["PUT /repos/{owner}/{repo}/topics", {
-      mediaType: {
-        previews: ["mercy"]
-      }
-    }],
-    requestPagesBuild: ["POST /repos/{owner}/{repo}/pages/builds"],
-    setAdminBranchProtection: ["POST /repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins"],
-    setAppAccessRestrictions: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", {}, {
-      mapToData: "apps"
-    }],
-    setStatusCheckContexts: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", {}, {
-      mapToData: "contexts"
-    }],
-    setTeamAccessRestrictions: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", {}, {
-      mapToData: "teams"
-    }],
-    setUserAccessRestrictions: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", {}, {
-      mapToData: "users"
-    }],
-    testPushWebhook: ["POST /repos/{owner}/{repo}/hooks/{hook_id}/tests"],
-    transfer: ["POST /repos/{owner}/{repo}/transfer"],
-    update: ["PATCH /repos/{owner}/{repo}"],
-    updateBranchProtection: ["PUT /repos/{owner}/{repo}/branches/{branch}/protection"],
-    updateCommitComment: ["PATCH /repos/{owner}/{repo}/comments/{comment_id}"],
-    updateInformationAboutPagesSite: ["PUT /repos/{owner}/{repo}/pages"],
-    updateInvitation: ["PATCH /repos/{owner}/{repo}/invitations/{invitation_id}"],
-    updatePullRequestReviewProtection: ["PATCH /repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews"],
-    updateRelease: ["PATCH /repos/{owner}/{repo}/releases/{release_id}"],
-    updateReleaseAsset: ["PATCH /repos/{owner}/{repo}/releases/assets/{asset_id}"],
-    updateStatusCheckPotection: ["PATCH /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks", {}, {
-      renamed: ["repos", "updateStatusCheckProtection"]
-    }],
-    updateStatusCheckProtection: ["PATCH /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks"],
-    updateWebhook: ["PATCH /repos/{owner}/{repo}/hooks/{hook_id}"],
-    updateWebhookConfigForRepo: ["PATCH /repos/{owner}/{repo}/hooks/{hook_id}/config"],
-    uploadReleaseAsset: ["POST /repos/{owner}/{repo}/releases/{release_id}/assets{?name,label}", {
-      baseUrl: "https://uploads.github.com"
-    }]
-  },
-  search: {
-    code: ["GET /search/code"],
-    commits: ["GET /search/commits"],
-    issuesAndPullRequests: ["GET /search/issues"],
-    labels: ["GET /search/labels"],
-    repos: ["GET /search/repositories"],
-    topics: ["GET /search/topics", {
-      mediaType: {
-        previews: ["mercy"]
-      }
-    }],
-    users: ["GET /search/users"]
-  },
-  secretScanning: {
-    getAlert: ["GET /repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}"],
-    listAlertsForOrg: ["GET /orgs/{org}/secret-scanning/alerts"],
-    listAlertsForRepo: ["GET /repos/{owner}/{repo}/secret-scanning/alerts"],
-    updateAlert: ["PATCH /repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}"]
-  },
-  teams: {
-    addOrUpdateMembershipForUserInOrg: ["PUT /orgs/{org}/teams/{team_slug}/memberships/{username}"],
-    addOrUpdateProjectPermissionsInOrg: ["PUT /orgs/{org}/teams/{team_slug}/projects/{project_id}"],
-    addOrUpdateRepoPermissionsInOrg: ["PUT /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}"],
-    checkPermissionsForProjectInOrg: ["GET /orgs/{org}/teams/{team_slug}/projects/{project_id}"],
-    checkPermissionsForRepoInOrg: ["GET /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}"],
-    create: ["POST /orgs/{org}/teams"],
-    createDiscussionCommentInOrg: ["POST /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments"],
-    createDiscussionInOrg: ["POST /orgs/{org}/teams/{team_slug}/discussions"],
-    deleteDiscussionCommentInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}"],
-    deleteDiscussionInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}"],
-    deleteInOrg: ["DELETE /orgs/{org}/teams/{team_slug}"],
-    getByName: ["GET /orgs/{org}/teams/{team_slug}"],
-    getDiscussionCommentInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}"],
-    getDiscussionInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}"],
-    getMembershipForUserInOrg: ["GET /orgs/{org}/teams/{team_slug}/memberships/{username}"],
-    list: ["GET /orgs/{org}/teams"],
-    listChildInOrg: ["GET /orgs/{org}/teams/{team_slug}/teams"],
-    listDiscussionCommentsInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments"],
-    listDiscussionsInOrg: ["GET /orgs/{org}/teams/{team_slug}/discussions"],
-    listForAuthenticatedUser: ["GET /user/teams"],
-    listMembersInOrg: ["GET /orgs/{org}/teams/{team_slug}/members"],
-    listPendingInvitationsInOrg: ["GET /orgs/{org}/teams/{team_slug}/invitations"],
-    listProjectsInOrg: ["GET /orgs/{org}/teams/{team_slug}/projects"],
-    listReposInOrg: ["GET /orgs/{org}/teams/{team_slug}/repos"],
-    removeMembershipForUserInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/memberships/{username}"],
-    removeProjectInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/projects/{project_id}"],
-    removeRepoInOrg: ["DELETE /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}"],
-    updateDiscussionCommentInOrg: ["PATCH /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}"],
-    updateDiscussionInOrg: ["PATCH /orgs/{org}/teams/{team_slug}/discussions/{discussion_number}"],
-    updateInOrg: ["PATCH /orgs/{org}/teams/{team_slug}"]
-  },
-  users: {
-    addEmailForAuthenticated: ["POST /user/emails", {}, {
-      renamed: ["users", "addEmailForAuthenticatedUser"]
-    }],
-    addEmailForAuthenticatedUser: ["POST /user/emails"],
-    block: ["PUT /user/blocks/{username}"],
-    checkBlocked: ["GET /user/blocks/{username}"],
-    checkFollowingForUser: ["GET /users/{username}/following/{target_user}"],
-    checkPersonIsFollowedByAuthenticated: ["GET /user/following/{username}"],
-    createGpgKeyForAuthenticated: ["POST /user/gpg_keys", {}, {
-      renamed: ["users", "createGpgKeyForAuthenticatedUser"]
-    }],
-    createGpgKeyForAuthenticatedUser: ["POST /user/gpg_keys"],
-    createPublicSshKeyForAuthenticated: ["POST /user/keys", {}, {
-      renamed: ["users", "createPublicSshKeyForAuthenticatedUser"]
-    }],
-    createPublicSshKeyForAuthenticatedUser: ["POST /user/keys"],
-    deleteEmailForAuthenticated: ["DELETE /user/emails", {}, {
-      renamed: ["users", "deleteEmailForAuthenticatedUser"]
-    }],
-    deleteEmailForAuthenticatedUser: ["DELETE /user/emails"],
-    deleteGpgKeyForAuthenticated: ["DELETE /user/gpg_keys/{gpg_key_id}", {}, {
-      renamed: ["users", "deleteGpgKeyForAuthenticatedUser"]
-    }],
-    deleteGpgKeyForAuthenticatedUser: ["DELETE /user/gpg_keys/{gpg_key_id}"],
-    deletePublicSshKeyForAuthenticated: ["DELETE /user/keys/{key_id}", {}, {
-      renamed: ["users", "deletePublicSshKeyForAuthenticatedUser"]
-    }],
-    deletePublicSshKeyForAuthenticatedUser: ["DELETE /user/keys/{key_id}"],
-    follow: ["PUT /user/following/{username}"],
-    getAuthenticated: ["GET /user"],
-    getByUsername: ["GET /users/{username}"],
-    getContextForUser: ["GET /users/{username}/hovercard"],
-    getGpgKeyForAuthenticated: ["GET /user/gpg_keys/{gpg_key_id}", {}, {
-      renamed: ["users", "getGpgKeyForAuthenticatedUser"]
-    }],
-    getGpgKeyForAuthenticatedUser: ["GET /user/gpg_keys/{gpg_key_id}"],
-    getPublicSshKeyForAuthenticated: ["GET /user/keys/{key_id}", {}, {
-      renamed: ["users", "getPublicSshKeyForAuthenticatedUser"]
-    }],
-    getPublicSshKeyForAuthenticatedUser: ["GET /user/keys/{key_id}"],
-    list: ["GET /users"],
-    listBlockedByAuthenticated: ["GET /user/blocks", {}, {
-      renamed: ["users", "listBlockedByAuthenticatedUser"]
-    }],
-    listBlockedByAuthenticatedUser: ["GET /user/blocks"],
-    listEmailsForAuthenticated: ["GET /user/emails", {}, {
-      renamed: ["users", "listEmailsForAuthenticatedUser"]
-    }],
-    listEmailsForAuthenticatedUser: ["GET /user/emails"],
-    listFollowedByAuthenticated: ["GET /user/following", {}, {
-      renamed: ["users", "listFollowedByAuthenticatedUser"]
-    }],
-    listFollowedByAuthenticatedUser: ["GET /user/following"],
-    listFollowersForAuthenticatedUser: ["GET /user/followers"],
-    listFollowersForUser: ["GET /users/{username}/followers"],
-    listFollowingForUser: ["GET /users/{username}/following"],
-    listGpgKeysForAuthenticated: ["GET /user/gpg_keys", {}, {
-      renamed: ["users", "listGpgKeysForAuthenticatedUser"]
-    }],
-    listGpgKeysForAuthenticatedUser: ["GET /user/gpg_keys"],
-    listGpgKeysForUser: ["GET /users/{username}/gpg_keys"],
-    listPublicEmailsForAuthenticated: ["GET /user/public_emails", {}, {
-      renamed: ["users", "listPublicEmailsForAuthenticatedUser"]
-    }],
-    listPublicEmailsForAuthenticatedUser: ["GET /user/public_emails"],
-    listPublicKeysForUser: ["GET /users/{username}/keys"],
-    listPublicSshKeysForAuthenticated: ["GET /user/keys", {}, {
-      renamed: ["users", "listPublicSshKeysForAuthenticatedUser"]
-    }],
-    listPublicSshKeysForAuthenticatedUser: ["GET /user/keys"],
-    setPrimaryEmailVisibilityForAuthenticated: ["PATCH /user/email/visibility", {}, {
-      renamed: ["users", "setPrimaryEmailVisibilityForAuthenticatedUser"]
-    }],
-    setPrimaryEmailVisibilityForAuthenticatedUser: ["PATCH /user/email/visibility"],
-    unblock: ["DELETE /user/blocks/{username}"],
-    unfollow: ["DELETE /user/following/{username}"],
-    updateAuthenticated: ["PATCH /user"]
-  }
-};
-
-const VERSION = "5.13.0";
-
-function endpointsToMethods(octokit, endpointsMap) {
-  const newMethods = {};
-
-  for (const [scope, endpoints] of Object.entries(endpointsMap)) {
-    for (const [methodName, endpoint] of Object.entries(endpoints)) {
-      const [route, defaults, decorations] = endpoint;
-      const [method, url] = route.split(/ /);
-      const endpointDefaults = Object.assign({
-        method,
-        url
-      }, defaults);
-
-      if (!newMethods[scope]) {
-        newMethods[scope] = {};
-      }
-
-      const scopeMethods = newMethods[scope];
-
-      if (decorations) {
-        scopeMethods[methodName] = decorate(octokit, scope, methodName, endpointDefaults, decorations);
-        continue;
-      }
-
-      scopeMethods[methodName] = octokit.request.defaults(endpointDefaults);
-    }
-  }
-
-  return newMethods;
-}
-
-function decorate(octokit, scope, methodName, defaults, decorations) {
-  const requestWithDefaults = octokit.request.defaults(defaults);
-  /* istanbul ignore next */
-
-  function withDecorations(...args) {
-    // @ts-ignore https://github.com/microsoft/TypeScript/issues/25488
-    let options = requestWithDefaults.endpoint.merge(...args); // There are currently no other decorations than `.mapToData`
-
-    if (decorations.mapToData) {
-      options = Object.assign({}, options, {
-        data: options[decorations.mapToData],
-        [decorations.mapToData]: undefined
-      });
-      return requestWithDefaults(options);
-    }
-
-    if (decorations.renamed) {
-      const [newScope, newMethodName] = decorations.renamed;
-      octokit.log.warn(`octokit.${scope}.${methodName}() has been renamed to octokit.${newScope}.${newMethodName}()`);
-    }
-
-    if (decorations.deprecated) {
-      octokit.log.warn(decorations.deprecated);
-    }
-
-    if (decorations.renamedParameters) {
-      // @ts-ignore https://github.com/microsoft/TypeScript/issues/25488
-      const options = requestWithDefaults.endpoint.merge(...args);
-
-      for (const [name, alias] of Object.entries(decorations.renamedParameters)) {
-        if (name in options) {
-          octokit.log.warn(`"${name}" parameter is deprecated for "octokit.${scope}.${methodName}()". Use "${alias}" instead`);
-
-          if (!(alias in options)) {
-            options[alias] = options[name];
-          }
-
-          delete options[name];
-        }
-      }
-
-      return requestWithDefaults(options);
-    } // @ts-ignore https://github.com/microsoft/TypeScript/issues/25488
-
-
-    return requestWithDefaults(...args);
-  }
-
-  return Object.assign(withDecorations, requestWithDefaults);
-}
-
-function restEndpointMethods(octokit) {
-  const api = endpointsToMethods(octokit, Endpoints);
-  return {
-    rest: api
-  };
-}
-restEndpointMethods.VERSION = VERSION;
-function legacyRestEndpointMethods(octokit) {
-  const api = endpointsToMethods(octokit, Endpoints);
-  return _objectSpread2(_objectSpread2({}, api), {}, {
-    rest: api
-  });
-}
-legacyRestEndpointMethods.VERSION = VERSION;
-
-exports.legacyRestEndpointMethods = legacyRestEndpointMethods;
-exports.restEndpointMethods = restEndpointMethods;
 //# sourceMappingURL=index.js.map
 
 
@@ -12885,6 +11453,1745 @@ const macosRelease = release => {
 module.exports = macosRelease;
 // TODO: remove this in the next major version
 module.exports["default"] = macosRelease;
+
+
+/***/ }),
+
+/***/ 9076:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+// super simple module for the most common nodejs use case.
+exports.markdown = __nccwpck_require__(8806);
+exports.parse = exports.markdown.toHTML;
+
+
+/***/ }),
+
+/***/ 8806:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+// Released under MIT license
+// Copyright (c) 2009-2010 Dominic Baggott
+// Copyright (c) 2009-2010 Ash Berlin
+// Copyright (c) 2011 Christoph Dorn <christoph@christophdorn.com> (http://www.christophdorn.com)
+
+/*jshint browser:true, devel:true */
+
+(function( expose ) {
+
+/**
+ *  class Markdown
+ *
+ *  Markdown processing in Javascript done right. We have very particular views
+ *  on what constitutes 'right' which include:
+ *
+ *  - produces well-formed HTML (this means that em and strong nesting is
+ *    important)
+ *
+ *  - has an intermediate representation to allow processing of parsed data (We
+ *    in fact have two, both as [JsonML]: a markdown tree and an HTML tree).
+ *
+ *  - is easily extensible to add new dialects without having to rewrite the
+ *    entire parsing mechanics
+ *
+ *  - has a good test suite
+ *
+ *  This implementation fulfills all of these (except that the test suite could
+ *  do with expanding to automatically run all the fixtures from other Markdown
+ *  implementations.)
+ *
+ *  ##### Intermediate Representation
+ *
+ *  *TODO* Talk about this :) Its JsonML, but document the node names we use.
+ *
+ *  [JsonML]: http://jsonml.org/ "JSON Markup Language"
+ **/
+var Markdown = expose.Markdown = function(dialect) {
+  switch (typeof dialect) {
+    case "undefined":
+      this.dialect = Markdown.dialects.Gruber;
+      break;
+    case "object":
+      this.dialect = dialect;
+      break;
+    default:
+      if ( dialect in Markdown.dialects ) {
+        this.dialect = Markdown.dialects[dialect];
+      }
+      else {
+        throw new Error("Unknown Markdown dialect '" + String(dialect) + "'");
+      }
+      break;
+  }
+  this.em_state = [];
+  this.strong_state = [];
+  this.debug_indent = "";
+};
+
+/**
+ *  parse( markdown, [dialect] ) -> JsonML
+ *  - markdown (String): markdown string to parse
+ *  - dialect (String | Dialect): the dialect to use, defaults to gruber
+ *
+ *  Parse `markdown` and return a markdown document as a Markdown.JsonML tree.
+ **/
+expose.parse = function( source, dialect ) {
+  // dialect will default if undefined
+  var md = new Markdown( dialect );
+  return md.toTree( source );
+};
+
+/**
+ *  toHTML( markdown, [dialect]  ) -> String
+ *  toHTML( md_tree ) -> String
+ *  - markdown (String): markdown string to parse
+ *  - md_tree (Markdown.JsonML): parsed markdown tree
+ *
+ *  Take markdown (either as a string or as a JsonML tree) and run it through
+ *  [[toHTMLTree]] then turn it into a well-formated HTML fragment.
+ **/
+expose.toHTML = function toHTML( source , dialect , options ) {
+  var input = expose.toHTMLTree( source , dialect , options );
+
+  return expose.renderJsonML( input );
+};
+
+/**
+ *  toHTMLTree( markdown, [dialect] ) -> JsonML
+ *  toHTMLTree( md_tree ) -> JsonML
+ *  - markdown (String): markdown string to parse
+ *  - dialect (String | Dialect): the dialect to use, defaults to gruber
+ *  - md_tree (Markdown.JsonML): parsed markdown tree
+ *
+ *  Turn markdown into HTML, represented as a JsonML tree. If a string is given
+ *  to this function, it is first parsed into a markdown tree by calling
+ *  [[parse]].
+ **/
+expose.toHTMLTree = function toHTMLTree( input, dialect , options ) {
+  // convert string input to an MD tree
+  if ( typeof input ==="string" ) input = this.parse( input, dialect );
+
+  // Now convert the MD tree to an HTML tree
+
+  // remove references from the tree
+  var attrs = extract_attr( input ),
+      refs = {};
+
+  if ( attrs && attrs.references ) {
+    refs = attrs.references;
+  }
+
+  var html = convert_tree_to_html( input, refs , options );
+  merge_text_nodes( html );
+  return html;
+};
+
+// For Spidermonkey based engines
+function mk_block_toSource() {
+  return "Markdown.mk_block( " +
+          uneval(this.toString()) +
+          ", " +
+          uneval(this.trailing) +
+          ", " +
+          uneval(this.lineNumber) +
+          " )";
+}
+
+// node
+function mk_block_inspect() {
+  var util = __nccwpck_require__(3837);
+  return "Markdown.mk_block( " +
+          util.inspect(this.toString()) +
+          ", " +
+          util.inspect(this.trailing) +
+          ", " +
+          util.inspect(this.lineNumber) +
+          " )";
+
+}
+
+var mk_block = Markdown.mk_block = function(block, trail, line) {
+  // Be helpful for default case in tests.
+  if ( arguments.length == 1 ) trail = "\n\n";
+
+  var s = new String(block);
+  s.trailing = trail;
+  // To make it clear its not just a string
+  s.inspect = mk_block_inspect;
+  s.toSource = mk_block_toSource;
+
+  if ( line != undefined )
+    s.lineNumber = line;
+
+  return s;
+};
+
+function count_lines( str ) {
+  var n = 0, i = -1;
+  while ( ( i = str.indexOf("\n", i + 1) ) !== -1 ) n++;
+  return n;
+}
+
+// Internal - split source into rough blocks
+Markdown.prototype.split_blocks = function splitBlocks( input, startLine ) {
+  input = input.replace(/(\r\n|\n|\r)/g, "\n");
+  // [\s\S] matches _anything_ (newline or space)
+  // [^] is equivalent but doesn't work in IEs.
+  var re = /([\s\S]+?)($|\n#|\n(?:\s*\n|$)+)/g,
+      blocks = [],
+      m;
+
+  var line_no = 1;
+
+  if ( ( m = /^(\s*\n)/.exec(input) ) != null ) {
+    // skip (but count) leading blank lines
+    line_no += count_lines( m[0] );
+    re.lastIndex = m[0].length;
+  }
+
+  while ( ( m = re.exec(input) ) !== null ) {
+    if (m[2] == "\n#") {
+      m[2] = "\n";
+      re.lastIndex--;
+    }
+    blocks.push( mk_block( m[1], m[2], line_no ) );
+    line_no += count_lines( m[0] );
+  }
+
+  return blocks;
+};
+
+/**
+ *  Markdown#processBlock( block, next ) -> undefined | [ JsonML, ... ]
+ *  - block (String): the block to process
+ *  - next (Array): the following blocks
+ *
+ * Process `block` and return an array of JsonML nodes representing `block`.
+ *
+ * It does this by asking each block level function in the dialect to process
+ * the block until one can. Succesful handling is indicated by returning an
+ * array (with zero or more JsonML nodes), failure by a false value.
+ *
+ * Blocks handlers are responsible for calling [[Markdown#processInline]]
+ * themselves as appropriate.
+ *
+ * If the blocks were split incorrectly or adjacent blocks need collapsing you
+ * can adjust `next` in place using shift/splice etc.
+ *
+ * If any of this default behaviour is not right for the dialect, you can
+ * define a `__call__` method on the dialect that will get invoked to handle
+ * the block processing.
+ */
+Markdown.prototype.processBlock = function processBlock( block, next ) {
+  var cbs = this.dialect.block,
+      ord = cbs.__order__;
+
+  if ( "__call__" in cbs ) {
+    return cbs.__call__.call(this, block, next);
+  }
+
+  for ( var i = 0; i < ord.length; i++ ) {
+    //D:this.debug( "Testing", ord[i] );
+    var res = cbs[ ord[i] ].call( this, block, next );
+    if ( res ) {
+      //D:this.debug("  matched");
+      if ( !isArray(res) || ( res.length > 0 && !( isArray(res[0]) ) ) )
+        this.debug(ord[i], "didn't return a proper array");
+      //D:this.debug( "" );
+      return res;
+    }
+  }
+
+  // Uhoh! no match! Should we throw an error?
+  return [];
+};
+
+Markdown.prototype.processInline = function processInline( block ) {
+  return this.dialect.inline.__call__.call( this, String( block ) );
+};
+
+/**
+ *  Markdown#toTree( source ) -> JsonML
+ *  - source (String): markdown source to parse
+ *
+ *  Parse `source` into a JsonML tree representing the markdown document.
+ **/
+// custom_tree means set this.tree to `custom_tree` and restore old value on return
+Markdown.prototype.toTree = function toTree( source, custom_root ) {
+  var blocks = source instanceof Array ? source : this.split_blocks( source );
+
+  // Make tree a member variable so its easier to mess with in extensions
+  var old_tree = this.tree;
+  try {
+    this.tree = custom_root || this.tree || [ "markdown" ];
+
+    blocks:
+    while ( blocks.length ) {
+      var b = this.processBlock( blocks.shift(), blocks );
+
+      // Reference blocks and the like won't return any content
+      if ( !b.length ) continue blocks;
+
+      this.tree.push.apply( this.tree, b );
+    }
+    return this.tree;
+  }
+  finally {
+    if ( custom_root ) {
+      this.tree = old_tree;
+    }
+  }
+};
+
+// Noop by default
+Markdown.prototype.debug = function () {
+  var args = Array.prototype.slice.call( arguments);
+  args.unshift(this.debug_indent);
+  if ( typeof print !== "undefined" )
+      print.apply( print, args );
+  if ( typeof console !== "undefined" && typeof console.log !== "undefined" )
+      console.log.apply( null, args );
+}
+
+Markdown.prototype.loop_re_over_block = function( re, block, cb ) {
+  // Dont use /g regexps with this
+  var m,
+      b = block.valueOf();
+
+  while ( b.length && (m = re.exec(b) ) != null ) {
+    b = b.substr( m[0].length );
+    cb.call(this, m);
+  }
+  return b;
+};
+
+/**
+ * Markdown.dialects
+ *
+ * Namespace of built-in dialects.
+ **/
+Markdown.dialects = {};
+
+/**
+ * Markdown.dialects.Gruber
+ *
+ * The default dialect that follows the rules set out by John Gruber's
+ * markdown.pl as closely as possible. Well actually we follow the behaviour of
+ * that script which in some places is not exactly what the syntax web page
+ * says.
+ **/
+Markdown.dialects.Gruber = {
+  block: {
+    atxHeader: function atxHeader( block, next ) {
+      var m = block.match( /^(#{1,6})\s*(.*?)\s*#*\s*(?:\n|$)/ );
+
+      if ( !m ) return undefined;
+
+      var header = [ "header", { level: m[ 1 ].length } ];
+      Array.prototype.push.apply(header, this.processInline(m[ 2 ]));
+
+      if ( m[0].length < block.length )
+        next.unshift( mk_block( block.substr( m[0].length ), block.trailing, block.lineNumber + 2 ) );
+
+      return [ header ];
+    },
+
+    setextHeader: function setextHeader( block, next ) {
+      var m = block.match( /^(.*)\n([-=])\2\2+(?:\n|$)/ );
+
+      if ( !m ) return undefined;
+
+      var level = ( m[ 2 ] === "=" ) ? 1 : 2;
+      var header = [ "header", { level : level }, m[ 1 ] ];
+
+      if ( m[0].length < block.length )
+        next.unshift( mk_block( block.substr( m[0].length ), block.trailing, block.lineNumber + 2 ) );
+
+      return [ header ];
+    },
+
+    code: function code( block, next ) {
+      // |    Foo
+      // |bar
+      // should be a code block followed by a paragraph. Fun
+      //
+      // There might also be adjacent code block to merge.
+
+      var ret = [],
+          re = /^(?: {0,3}\t| {4})(.*)\n?/,
+          lines;
+
+      // 4 spaces + content
+      if ( !block.match( re ) ) return undefined;
+
+      block_search:
+      do {
+        // Now pull out the rest of the lines
+        var b = this.loop_re_over_block(
+                  re, block.valueOf(), function( m ) { ret.push( m[1] ); } );
+
+        if ( b.length ) {
+          // Case alluded to in first comment. push it back on as a new block
+          next.unshift( mk_block(b, block.trailing) );
+          break block_search;
+        }
+        else if ( next.length ) {
+          // Check the next block - it might be code too
+          if ( !next[0].match( re ) ) break block_search;
+
+          // Pull how how many blanks lines follow - minus two to account for .join
+          ret.push ( block.trailing.replace(/[^\n]/g, "").substring(2) );
+
+          block = next.shift();
+        }
+        else {
+          break block_search;
+        }
+      } while ( true );
+
+      return [ [ "code_block", ret.join("\n") ] ];
+    },
+
+    horizRule: function horizRule( block, next ) {
+      // this needs to find any hr in the block to handle abutting blocks
+      var m = block.match( /^(?:([\s\S]*?)\n)?[ \t]*([-_*])(?:[ \t]*\2){2,}[ \t]*(?:\n([\s\S]*))?$/ );
+
+      if ( !m ) {
+        return undefined;
+      }
+
+      var jsonml = [ [ "hr" ] ];
+
+      // if there's a leading abutting block, process it
+      if ( m[ 1 ] ) {
+        jsonml.unshift.apply( jsonml, this.processBlock( m[ 1 ], [] ) );
+      }
+
+      // if there's a trailing abutting block, stick it into next
+      if ( m[ 3 ] ) {
+        next.unshift( mk_block( m[ 3 ] ) );
+      }
+
+      return jsonml;
+    },
+
+    // There are two types of lists. Tight and loose. Tight lists have no whitespace
+    // between the items (and result in text just in the <li>) and loose lists,
+    // which have an empty line between list items, resulting in (one or more)
+    // paragraphs inside the <li>.
+    //
+    // There are all sorts weird edge cases about the original markdown.pl's
+    // handling of lists:
+    //
+    // * Nested lists are supposed to be indented by four chars per level. But
+    //   if they aren't, you can get a nested list by indenting by less than
+    //   four so long as the indent doesn't match an indent of an existing list
+    //   item in the 'nest stack'.
+    //
+    // * The type of the list (bullet or number) is controlled just by the
+    //    first item at the indent. Subsequent changes are ignored unless they
+    //    are for nested lists
+    //
+    lists: (function( ) {
+      // Use a closure to hide a few variables.
+      var any_list = "[*+-]|\\d+\\.",
+          bullet_list = /[*+-]/,
+          number_list = /\d+\./,
+          // Capture leading indent as it matters for determining nested lists.
+          is_list_re = new RegExp( "^( {0,3})(" + any_list + ")[ \t]+" ),
+          indent_re = "(?: {0,3}\\t| {4})";
+
+      // TODO: Cache this regexp for certain depths.
+      // Create a regexp suitable for matching an li for a given stack depth
+      function regex_for_depth( depth ) {
+
+        return new RegExp(
+          // m[1] = indent, m[2] = list_type
+          "(?:^(" + indent_re + "{0," + depth + "} {0,3})(" + any_list + ")\\s+)|" +
+          // m[3] = cont
+          "(^" + indent_re + "{0," + (depth-1) + "}[ ]{0,4})"
+        );
+      }
+      function expand_tab( input ) {
+        return input.replace( / {0,3}\t/g, "    " );
+      }
+
+      // Add inline content `inline` to `li`. inline comes from processInline
+      // so is an array of content
+      function add(li, loose, inline, nl) {
+        if ( loose ) {
+          li.push( [ "para" ].concat(inline) );
+          return;
+        }
+        // Hmmm, should this be any block level element or just paras?
+        var add_to = li[li.length -1] instanceof Array && li[li.length - 1][0] == "para"
+                   ? li[li.length -1]
+                   : li;
+
+        // If there is already some content in this list, add the new line in
+        if ( nl && li.length > 1 ) inline.unshift(nl);
+
+        for ( var i = 0; i < inline.length; i++ ) {
+          var what = inline[i],
+              is_str = typeof what == "string";
+          if ( is_str && add_to.length > 1 && typeof add_to[add_to.length-1] == "string" ) {
+            add_to[ add_to.length-1 ] += what;
+          }
+          else {
+            add_to.push( what );
+          }
+        }
+      }
+
+      // contained means have an indent greater than the current one. On
+      // *every* line in the block
+      function get_contained_blocks( depth, blocks ) {
+
+        var re = new RegExp( "^(" + indent_re + "{" + depth + "}.*?\\n?)*$" ),
+            replace = new RegExp("^" + indent_re + "{" + depth + "}", "gm"),
+            ret = [];
+
+        while ( blocks.length > 0 ) {
+          if ( re.exec( blocks[0] ) ) {
+            var b = blocks.shift(),
+                // Now remove that indent
+                x = b.replace( replace, "");
+
+            ret.push( mk_block( x, b.trailing, b.lineNumber ) );
+          }
+          else {
+            break;
+          }
+        }
+        return ret;
+      }
+
+      // passed to stack.forEach to turn list items up the stack into paras
+      function paragraphify(s, i, stack) {
+        var list = s.list;
+        var last_li = list[list.length-1];
+
+        if ( last_li[1] instanceof Array && last_li[1][0] == "para" ) {
+          return;
+        }
+        if ( i + 1 == stack.length ) {
+          // Last stack frame
+          // Keep the same array, but replace the contents
+          last_li.push( ["para"].concat( last_li.splice(1, last_li.length - 1) ) );
+        }
+        else {
+          var sublist = last_li.pop();
+          last_li.push( ["para"].concat( last_li.splice(1, last_li.length - 1) ), sublist );
+        }
+      }
+
+      // The matcher function
+      return function( block, next ) {
+        var m = block.match( is_list_re );
+        if ( !m ) return undefined;
+
+        function make_list( m ) {
+          var list = bullet_list.exec( m[2] )
+                   ? ["bulletlist"]
+                   : ["numberlist"];
+
+          stack.push( { list: list, indent: m[1] } );
+          return list;
+        }
+
+
+        var stack = [], // Stack of lists for nesting.
+            list = make_list( m ),
+            last_li,
+            loose = false,
+            ret = [ stack[0].list ],
+            i;
+
+        // Loop to search over block looking for inner block elements and loose lists
+        loose_search:
+        while ( true ) {
+          // Split into lines preserving new lines at end of line
+          var lines = block.split( /(?=\n)/ );
+
+          // We have to grab all lines for a li and call processInline on them
+          // once as there are some inline things that can span lines.
+          var li_accumulate = "";
+
+          // Loop over the lines in this block looking for tight lists.
+          tight_search:
+          for ( var line_no = 0; line_no < lines.length; line_no++ ) {
+            var nl = "",
+                l = lines[line_no].replace(/^\n/, function(n) { nl = n; return ""; });
+
+            // TODO: really should cache this
+            var line_re = regex_for_depth( stack.length );
+
+            m = l.match( line_re );
+            //print( "line:", uneval(l), "\nline match:", uneval(m) );
+
+            // We have a list item
+            if ( m[1] !== undefined ) {
+              // Process the previous list item, if any
+              if ( li_accumulate.length ) {
+                add( last_li, loose, this.processInline( li_accumulate ), nl );
+                // Loose mode will have been dealt with. Reset it
+                loose = false;
+                li_accumulate = "";
+              }
+
+              m[1] = expand_tab( m[1] );
+              var wanted_depth = Math.floor(m[1].length/4)+1;
+              //print( "want:", wanted_depth, "stack:", stack.length);
+              if ( wanted_depth > stack.length ) {
+                // Deep enough for a nested list outright
+                //print ( "new nested list" );
+                list = make_list( m );
+                last_li.push( list );
+                last_li = list[1] = [ "listitem" ];
+              }
+              else {
+                // We aren't deep enough to be strictly a new level. This is
+                // where Md.pl goes nuts. If the indent matches a level in the
+                // stack, put it there, else put it one deeper then the
+                // wanted_depth deserves.
+                var found = false;
+                for ( i = 0; i < stack.length; i++ ) {
+                  if ( stack[ i ].indent != m[1] ) continue;
+                  list = stack[ i ].list;
+                  stack.splice( i+1, stack.length - (i+1) );
+                  found = true;
+                  break;
+                }
+
+                if (!found) {
+                  //print("not found. l:", uneval(l));
+                  wanted_depth++;
+                  if ( wanted_depth <= stack.length ) {
+                    stack.splice(wanted_depth, stack.length - wanted_depth);
+                    //print("Desired depth now", wanted_depth, "stack:", stack.length);
+                    list = stack[wanted_depth-1].list;
+                    //print("list:", uneval(list) );
+                  }
+                  else {
+                    //print ("made new stack for messy indent");
+                    list = make_list(m);
+                    last_li.push(list);
+                  }
+                }
+
+                //print( uneval(list), "last", list === stack[stack.length-1].list );
+                last_li = [ "listitem" ];
+                list.push(last_li);
+              } // end depth of shenegains
+              nl = "";
+            }
+
+            // Add content
+            if ( l.length > m[0].length ) {
+              li_accumulate += nl + l.substr( m[0].length );
+            }
+          } // tight_search
+
+          if ( li_accumulate.length ) {
+            add( last_li, loose, this.processInline( li_accumulate ), nl );
+            // Loose mode will have been dealt with. Reset it
+            loose = false;
+            li_accumulate = "";
+          }
+
+          // Look at the next block - we might have a loose list. Or an extra
+          // paragraph for the current li
+          var contained = get_contained_blocks( stack.length, next );
+
+          // Deal with code blocks or properly nested lists
+          if ( contained.length > 0 ) {
+            // Make sure all listitems up the stack are paragraphs
+            forEach( stack, paragraphify, this);
+
+            last_li.push.apply( last_li, this.toTree( contained, [] ) );
+          }
+
+          var next_block = next[0] && next[0].valueOf() || "";
+
+          if ( next_block.match(is_list_re) || next_block.match( /^ / ) ) {
+            block = next.shift();
+
+            // Check for an HR following a list: features/lists/hr_abutting
+            var hr = this.dialect.block.horizRule( block, next );
+
+            if ( hr ) {
+              ret.push.apply(ret, hr);
+              break;
+            }
+
+            // Make sure all listitems up the stack are paragraphs
+            forEach( stack, paragraphify, this);
+
+            loose = true;
+            continue loose_search;
+          }
+          break;
+        } // loose_search
+
+        return ret;
+      };
+    })(),
+
+    blockquote: function blockquote( block, next ) {
+      if ( !block.match( /^>/m ) )
+        return undefined;
+
+      var jsonml = [];
+
+      // separate out the leading abutting block, if any. I.e. in this case:
+      //
+      //  a
+      //  > b
+      //
+      if ( block[ 0 ] != ">" ) {
+        var lines = block.split( /\n/ ),
+            prev = [],
+            line_no = block.lineNumber;
+
+        // keep shifting lines until you find a crotchet
+        while ( lines.length && lines[ 0 ][ 0 ] != ">" ) {
+            prev.push( lines.shift() );
+            line_no++;
+        }
+
+        var abutting = mk_block( prev.join( "\n" ), "\n", block.lineNumber );
+        jsonml.push.apply( jsonml, this.processBlock( abutting, [] ) );
+        // reassemble new block of just block quotes!
+        block = mk_block( lines.join( "\n" ), block.trailing, line_no );
+      }
+
+
+      // if the next block is also a blockquote merge it in
+      while ( next.length && next[ 0 ][ 0 ] == ">" ) {
+        var b = next.shift();
+        block = mk_block( block + block.trailing + b, b.trailing, block.lineNumber );
+      }
+
+      // Strip off the leading "> " and re-process as a block.
+      var input = block.replace( /^> ?/gm, "" ),
+          old_tree = this.tree,
+          processedBlock = this.toTree( input, [ "blockquote" ] ),
+          attr = extract_attr( processedBlock );
+
+      // If any link references were found get rid of them
+      if ( attr && attr.references ) {
+        delete attr.references;
+        // And then remove the attribute object if it's empty
+        if ( isEmpty( attr ) ) {
+          processedBlock.splice( 1, 1 );
+        }
+      }
+
+      jsonml.push( processedBlock );
+      return jsonml;
+    },
+
+    referenceDefn: function referenceDefn( block, next) {
+      var re = /^\s*\[(.*?)\]:\s*(\S+)(?:\s+(?:(['"])(.*?)\3|\((.*?)\)))?\n?/;
+      // interesting matches are [ , ref_id, url, , title, title ]
+
+      if ( !block.match(re) )
+        return undefined;
+
+      // make an attribute node if it doesn't exist
+      if ( !extract_attr( this.tree ) ) {
+        this.tree.splice( 1, 0, {} );
+      }
+
+      var attrs = extract_attr( this.tree );
+
+      // make a references hash if it doesn't exist
+      if ( attrs.references === undefined ) {
+        attrs.references = {};
+      }
+
+      var b = this.loop_re_over_block(re, block, function( m ) {
+
+        if ( m[2] && m[2][0] == "<" && m[2][m[2].length-1] == ">" )
+          m[2] = m[2].substring( 1, m[2].length - 1 );
+
+        var ref = attrs.references[ m[1].toLowerCase() ] = {
+          href: m[2]
+        };
+
+        if ( m[4] !== undefined )
+          ref.title = m[4];
+        else if ( m[5] !== undefined )
+          ref.title = m[5];
+
+      } );
+
+      if ( b.length )
+        next.unshift( mk_block( b, block.trailing ) );
+
+      return [];
+    },
+
+    para: function para( block, next ) {
+      // everything's a para!
+      return [ ["para"].concat( this.processInline( block ) ) ];
+    }
+  }
+};
+
+Markdown.dialects.Gruber.inline = {
+
+    __oneElement__: function oneElement( text, patterns_or_re, previous_nodes ) {
+      var m,
+          res,
+          lastIndex = 0;
+
+      patterns_or_re = patterns_or_re || this.dialect.inline.__patterns__;
+      var re = new RegExp( "([\\s\\S]*?)(" + (patterns_or_re.source || patterns_or_re) + ")" );
+
+      m = re.exec( text );
+      if (!m) {
+        // Just boring text
+        return [ text.length, text ];
+      }
+      else if ( m[1] ) {
+        // Some un-interesting text matched. Return that first
+        return [ m[1].length, m[1] ];
+      }
+
+      var res;
+      if ( m[2] in this.dialect.inline ) {
+        res = this.dialect.inline[ m[2] ].call(
+                  this,
+                  text.substr( m.index ), m, previous_nodes || [] );
+      }
+      // Default for now to make dev easier. just slurp special and output it.
+      res = res || [ m[2].length, m[2] ];
+      return res;
+    },
+
+    __call__: function inline( text, patterns ) {
+
+      var out = [],
+          res;
+
+      function add(x) {
+        //D:self.debug("  adding output", uneval(x));
+        if ( typeof x == "string" && typeof out[out.length-1] == "string" )
+          out[ out.length-1 ] += x;
+        else
+          out.push(x);
+      }
+
+      while ( text.length > 0 ) {
+        res = this.dialect.inline.__oneElement__.call(this, text, patterns, out );
+        text = text.substr( res.shift() );
+        forEach(res, add )
+      }
+
+      return out;
+    },
+
+    // These characters are intersting elsewhere, so have rules for them so that
+    // chunks of plain text blocks don't include them
+    "]": function () {},
+    "}": function () {},
+
+    __escape__ : /^\\[\\`\*_{}\[\]()#\+.!\-]/,
+
+    "\\": function escaped( text ) {
+      // [ length of input processed, node/children to add... ]
+      // Only esacape: \ ` * _ { } [ ] ( ) # * + - . !
+      if ( this.dialect.inline.__escape__.exec( text ) )
+        return [ 2, text.charAt( 1 ) ];
+      else
+        // Not an esacpe
+        return [ 1, "\\" ];
+    },
+
+    "![": function image( text ) {
+
+      // Unlike images, alt text is plain text only. no other elements are
+      // allowed in there
+
+      // ![Alt text](/path/to/img.jpg "Optional title")
+      //      1          2            3       4         <--- captures
+      var m = text.match( /^!\[(.*?)\][ \t]*\([ \t]*([^")]*?)(?:[ \t]+(["'])(.*?)\3)?[ \t]*\)/ );
+
+      if ( m ) {
+        if ( m[2] && m[2][0] == "<" && m[2][m[2].length-1] == ">" )
+          m[2] = m[2].substring( 1, m[2].length - 1 );
+
+        m[2] = this.dialect.inline.__call__.call( this, m[2], /\\/ )[0];
+
+        var attrs = { alt: m[1], href: m[2] || "" };
+        if ( m[4] !== undefined)
+          attrs.title = m[4];
+
+        return [ m[0].length, [ "img", attrs ] ];
+      }
+
+      // ![Alt text][id]
+      m = text.match( /^!\[(.*?)\][ \t]*\[(.*?)\]/ );
+
+      if ( m ) {
+        // We can't check if the reference is known here as it likely wont be
+        // found till after. Check it in md tree->hmtl tree conversion
+        return [ m[0].length, [ "img_ref", { alt: m[1], ref: m[2].toLowerCase(), original: m[0] } ] ];
+      }
+
+      // Just consume the '!['
+      return [ 2, "![" ];
+    },
+
+    "[": function link( text ) {
+
+      var orig = String(text);
+      // Inline content is possible inside `link text`
+      var res = Markdown.DialectHelpers.inline_until_char.call( this, text.substr(1), "]" );
+
+      // No closing ']' found. Just consume the [
+      if ( !res ) return [ 1, "[" ];
+
+      var consumed = 1 + res[ 0 ],
+          children = res[ 1 ],
+          link,
+          attrs;
+
+      // At this point the first [...] has been parsed. See what follows to find
+      // out which kind of link we are (reference or direct url)
+      text = text.substr( consumed );
+
+      // [link text](/path/to/img.jpg "Optional title")
+      //                 1            2       3         <--- captures
+      // This will capture up to the last paren in the block. We then pull
+      // back based on if there a matching ones in the url
+      //    ([here](/url/(test))
+      // The parens have to be balanced
+      var m = text.match( /^\s*\([ \t]*([^"']*)(?:[ \t]+(["'])(.*?)\2)?[ \t]*\)/ );
+      if ( m ) {
+        var url = m[1];
+        consumed += m[0].length;
+
+        if ( url && url[0] == "<" && url[url.length-1] == ">" )
+          url = url.substring( 1, url.length - 1 );
+
+        // If there is a title we don't have to worry about parens in the url
+        if ( !m[3] ) {
+          var open_parens = 1; // One open that isn't in the capture
+          for ( var len = 0; len < url.length; len++ ) {
+            switch ( url[len] ) {
+            case "(":
+              open_parens++;
+              break;
+            case ")":
+              if ( --open_parens == 0) {
+                consumed -= url.length - len;
+                url = url.substring(0, len);
+              }
+              break;
+            }
+          }
+        }
+
+        // Process escapes only
+        url = this.dialect.inline.__call__.call( this, url, /\\/ )[0];
+
+        attrs = { href: url || "" };
+        if ( m[3] !== undefined)
+          attrs.title = m[3];
+
+        link = [ "link", attrs ].concat( children );
+        return [ consumed, link ];
+      }
+
+      // [Alt text][id]
+      // [Alt text] [id]
+      m = text.match( /^\s*\[(.*?)\]/ );
+
+      if ( m ) {
+
+        consumed += m[ 0 ].length;
+
+        // [links][] uses links as its reference
+        attrs = { ref: ( m[ 1 ] || String(children) ).toLowerCase(),  original: orig.substr( 0, consumed ) };
+
+        link = [ "link_ref", attrs ].concat( children );
+
+        // We can't check if the reference is known here as it likely wont be
+        // found till after. Check it in md tree->hmtl tree conversion.
+        // Store the original so that conversion can revert if the ref isn't found.
+        return [ consumed, link ];
+      }
+
+      // [id]
+      // Only if id is plain (no formatting.)
+      if ( children.length == 1 && typeof children[0] == "string" ) {
+
+        attrs = { ref: children[0].toLowerCase(),  original: orig.substr( 0, consumed ) };
+        link = [ "link_ref", attrs, children[0] ];
+        return [ consumed, link ];
+      }
+
+      // Just consume the "["
+      return [ 1, "[" ];
+    },
+
+
+    "<": function autoLink( text ) {
+      var m;
+
+      if ( ( m = text.match( /^<(?:((https?|ftp|mailto):[^>]+)|(.*?@.*?\.[a-zA-Z]+))>/ ) ) != null ) {
+        if ( m[3] ) {
+          return [ m[0].length, [ "link", { href: "mailto:" + m[3] }, m[3] ] ];
+
+        }
+        else if ( m[2] == "mailto" ) {
+          return [ m[0].length, [ "link", { href: m[1] }, m[1].substr("mailto:".length ) ] ];
+        }
+        else
+          return [ m[0].length, [ "link", { href: m[1] }, m[1] ] ];
+      }
+
+      return [ 1, "<" ];
+    },
+
+    "`": function inlineCode( text ) {
+      // Inline code block. as many backticks as you like to start it
+      // Always skip over the opening ticks.
+      var m = text.match( /(`+)(([\s\S]*?)\1)/ );
+
+      if ( m && m[2] )
+        return [ m[1].length + m[2].length, [ "inlinecode", m[3] ] ];
+      else {
+        // TODO: No matching end code found - warn!
+        return [ 1, "`" ];
+      }
+    },
+
+    "  \n": function lineBreak( text ) {
+      return [ 3, [ "linebreak" ] ];
+    }
+
+};
+
+// Meta Helper/generator method for em and strong handling
+function strong_em( tag, md ) {
+
+  var state_slot = tag + "_state",
+      other_slot = tag == "strong" ? "em_state" : "strong_state";
+
+  function CloseTag(len) {
+    this.len_after = len;
+    this.name = "close_" + md;
+  }
+
+  return function ( text, orig_match ) {
+
+    if ( this[state_slot][0] == md ) {
+      // Most recent em is of this type
+      //D:this.debug("closing", md);
+      this[state_slot].shift();
+
+      // "Consume" everything to go back to the recrusion in the else-block below
+      return[ text.length, new CloseTag(text.length-md.length) ];
+    }
+    else {
+      // Store a clone of the em/strong states
+      var other = this[other_slot].slice(),
+          state = this[state_slot].slice();
+
+      this[state_slot].unshift(md);
+
+      //D:this.debug_indent += "  ";
+
+      // Recurse
+      var res = this.processInline( text.substr( md.length ) );
+      //D:this.debug_indent = this.debug_indent.substr(2);
+
+      var last = res[res.length - 1];
+
+      //D:this.debug("processInline from", tag + ": ", uneval( res ) );
+
+      var check = this[state_slot].shift();
+      if ( last instanceof CloseTag ) {
+        res.pop();
+        // We matched! Huzzah.
+        var consumed = text.length - last.len_after;
+        return [ consumed, [ tag ].concat(res) ];
+      }
+      else {
+        // Restore the state of the other kind. We might have mistakenly closed it.
+        this[other_slot] = other;
+        this[state_slot] = state;
+
+        // We can't reuse the processed result as it could have wrong parsing contexts in it.
+        return [ md.length, md ];
+      }
+    }
+  }; // End returned function
+}
+
+Markdown.dialects.Gruber.inline["**"] = strong_em("strong", "**");
+Markdown.dialects.Gruber.inline["__"] = strong_em("strong", "__");
+Markdown.dialects.Gruber.inline["*"]  = strong_em("em", "*");
+Markdown.dialects.Gruber.inline["_"]  = strong_em("em", "_");
+
+
+// Build default order from insertion order.
+Markdown.buildBlockOrder = function(d) {
+  var ord = [];
+  for ( var i in d ) {
+    if ( i == "__order__" || i == "__call__" ) continue;
+    ord.push( i );
+  }
+  d.__order__ = ord;
+};
+
+// Build patterns for inline matcher
+Markdown.buildInlinePatterns = function(d) {
+  var patterns = [];
+
+  for ( var i in d ) {
+    // __foo__ is reserved and not a pattern
+    if ( i.match( /^__.*__$/) ) continue;
+    var l = i.replace( /([\\.*+?|()\[\]{}])/g, "\\$1" )
+             .replace( /\n/, "\\n" );
+    patterns.push( i.length == 1 ? l : "(?:" + l + ")" );
+  }
+
+  patterns = patterns.join("|");
+  d.__patterns__ = patterns;
+  //print("patterns:", uneval( patterns ) );
+
+  var fn = d.__call__;
+  d.__call__ = function(text, pattern) {
+    if ( pattern != undefined ) {
+      return fn.call(this, text, pattern);
+    }
+    else
+    {
+      return fn.call(this, text, patterns);
+    }
+  };
+};
+
+Markdown.DialectHelpers = {};
+Markdown.DialectHelpers.inline_until_char = function( text, want ) {
+  var consumed = 0,
+      nodes = [];
+
+  while ( true ) {
+    if ( text.charAt( consumed ) == want ) {
+      // Found the character we were looking for
+      consumed++;
+      return [ consumed, nodes ];
+    }
+
+    if ( consumed >= text.length ) {
+      // No closing char found. Abort.
+      return null;
+    }
+
+    var res = this.dialect.inline.__oneElement__.call(this, text.substr( consumed ) );
+    consumed += res[ 0 ];
+    // Add any returned nodes.
+    nodes.push.apply( nodes, res.slice( 1 ) );
+  }
+}
+
+// Helper function to make sub-classing a dialect easier
+Markdown.subclassDialect = function( d ) {
+  function Block() {}
+  Block.prototype = d.block;
+  function Inline() {}
+  Inline.prototype = d.inline;
+
+  return { block: new Block(), inline: new Inline() };
+};
+
+Markdown.buildBlockOrder ( Markdown.dialects.Gruber.block );
+Markdown.buildInlinePatterns( Markdown.dialects.Gruber.inline );
+
+Markdown.dialects.Maruku = Markdown.subclassDialect( Markdown.dialects.Gruber );
+
+Markdown.dialects.Maruku.processMetaHash = function processMetaHash( meta_string ) {
+  var meta = split_meta_hash( meta_string ),
+      attr = {};
+
+  for ( var i = 0; i < meta.length; ++i ) {
+    // id: #foo
+    if ( /^#/.test( meta[ i ] ) ) {
+      attr.id = meta[ i ].substring( 1 );
+    }
+    // class: .foo
+    else if ( /^\./.test( meta[ i ] ) ) {
+      // if class already exists, append the new one
+      if ( attr["class"] ) {
+        attr["class"] = attr["class"] + meta[ i ].replace( /./, " " );
+      }
+      else {
+        attr["class"] = meta[ i ].substring( 1 );
+      }
+    }
+    // attribute: foo=bar
+    else if ( /\=/.test( meta[ i ] ) ) {
+      var s = meta[ i ].split( /\=/ );
+      attr[ s[ 0 ] ] = s[ 1 ];
+    }
+  }
+
+  return attr;
+}
+
+function split_meta_hash( meta_string ) {
+  var meta = meta_string.split( "" ),
+      parts = [ "" ],
+      in_quotes = false;
+
+  while ( meta.length ) {
+    var letter = meta.shift();
+    switch ( letter ) {
+      case " " :
+        // if we're in a quoted section, keep it
+        if ( in_quotes ) {
+          parts[ parts.length - 1 ] += letter;
+        }
+        // otherwise make a new part
+        else {
+          parts.push( "" );
+        }
+        break;
+      case "'" :
+      case '"' :
+        // reverse the quotes and move straight on
+        in_quotes = !in_quotes;
+        break;
+      case "\\" :
+        // shift off the next letter to be used straight away.
+        // it was escaped so we'll keep it whatever it is
+        letter = meta.shift();
+      default :
+        parts[ parts.length - 1 ] += letter;
+        break;
+    }
+  }
+
+  return parts;
+}
+
+Markdown.dialects.Maruku.block.document_meta = function document_meta( block, next ) {
+  // we're only interested in the first block
+  if ( block.lineNumber > 1 ) return undefined;
+
+  // document_meta blocks consist of one or more lines of `Key: Value\n`
+  if ( ! block.match( /^(?:\w+:.*\n)*\w+:.*$/ ) ) return undefined;
+
+  // make an attribute node if it doesn't exist
+  if ( !extract_attr( this.tree ) ) {
+    this.tree.splice( 1, 0, {} );
+  }
+
+  var pairs = block.split( /\n/ );
+  for ( p in pairs ) {
+    var m = pairs[ p ].match( /(\w+):\s*(.*)$/ ),
+        key = m[ 1 ].toLowerCase(),
+        value = m[ 2 ];
+
+    this.tree[ 1 ][ key ] = value;
+  }
+
+  // document_meta produces no content!
+  return [];
+};
+
+Markdown.dialects.Maruku.block.block_meta = function block_meta( block, next ) {
+  // check if the last line of the block is an meta hash
+  var m = block.match( /(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}$/ );
+  if ( !m ) return undefined;
+
+  // process the meta hash
+  var attr = this.dialect.processMetaHash( m[ 2 ] );
+
+  var hash;
+
+  // if we matched ^ then we need to apply meta to the previous block
+  if ( m[ 1 ] === "" ) {
+    var node = this.tree[ this.tree.length - 1 ];
+    hash = extract_attr( node );
+
+    // if the node is a string (rather than JsonML), bail
+    if ( typeof node === "string" ) return undefined;
+
+    // create the attribute hash if it doesn't exist
+    if ( !hash ) {
+      hash = {};
+      node.splice( 1, 0, hash );
+    }
+
+    // add the attributes in
+    for ( a in attr ) {
+      hash[ a ] = attr[ a ];
+    }
+
+    // return nothing so the meta hash is removed
+    return [];
+  }
+
+  // pull the meta hash off the block and process what's left
+  var b = block.replace( /\n.*$/, "" ),
+      result = this.processBlock( b, [] );
+
+  // get or make the attributes hash
+  hash = extract_attr( result[ 0 ] );
+  if ( !hash ) {
+    hash = {};
+    result[ 0 ].splice( 1, 0, hash );
+  }
+
+  // attach the attributes to the block
+  for ( a in attr ) {
+    hash[ a ] = attr[ a ];
+  }
+
+  return result;
+};
+
+Markdown.dialects.Maruku.block.definition_list = function definition_list( block, next ) {
+  // one or more terms followed by one or more definitions, in a single block
+  var tight = /^((?:[^\s:].*\n)+):\s+([\s\S]+)$/,
+      list = [ "dl" ],
+      i, m;
+
+  // see if we're dealing with a tight or loose block
+  if ( ( m = block.match( tight ) ) ) {
+    // pull subsequent tight DL blocks out of `next`
+    var blocks = [ block ];
+    while ( next.length && tight.exec( next[ 0 ] ) ) {
+      blocks.push( next.shift() );
+    }
+
+    for ( var b = 0; b < blocks.length; ++b ) {
+      var m = blocks[ b ].match( tight ),
+          terms = m[ 1 ].replace( /\n$/, "" ).split( /\n/ ),
+          defns = m[ 2 ].split( /\n:\s+/ );
+
+      // print( uneval( m ) );
+
+      for ( i = 0; i < terms.length; ++i ) {
+        list.push( [ "dt", terms[ i ] ] );
+      }
+
+      for ( i = 0; i < defns.length; ++i ) {
+        // run inline processing over the definition
+        list.push( [ "dd" ].concat( this.processInline( defns[ i ].replace( /(\n)\s+/, "$1" ) ) ) );
+      }
+    }
+  }
+  else {
+    return undefined;
+  }
+
+  return [ list ];
+};
+
+// splits on unescaped instances of @ch. If @ch is not a character the result
+// can be unpredictable
+
+Markdown.dialects.Maruku.block.table = function table (block, next) {
+
+    var _split_on_unescaped = function(s, ch) {
+        ch = ch || '\\s';
+        if (ch.match(/^[\\|\[\]{}?*.+^$]$/)) { ch = '\\' + ch; }
+        var res = [ ],
+            r = new RegExp('^((?:\\\\.|[^\\\\' + ch + '])*)' + ch + '(.*)'),
+            m;
+        while(m = s.match(r)) {
+            res.push(m[1]);
+            s = m[2];
+        }
+        res.push(s);
+        return res;
+    }
+
+    var leading_pipe = /^ {0,3}\|(.+)\n {0,3}\|\s*([\-:]+[\-| :]*)\n((?:\s*\|.*(?:\n|$))*)(?=\n|$)/,
+        // find at least an unescaped pipe in each line
+        no_leading_pipe = /^ {0,3}(\S(?:\\.|[^\\|])*\|.*)\n {0,3}([\-:]+\s*\|[\-| :]*)\n((?:(?:\\.|[^\\|])*\|.*(?:\n|$))*)(?=\n|$)/,
+        i, m;
+    if (m = block.match(leading_pipe)) {
+        // remove leading pipes in contents
+        // (header and horizontal rule already have the leading pipe left out)
+        m[3] = m[3].replace(/^\s*\|/gm, '');
+    } else if (! ( m = block.match(no_leading_pipe))) {
+        return undefined;
+    }
+
+    var table = [ "table", [ "thead", [ "tr" ] ], [ "tbody" ] ];
+
+    // remove trailing pipes, then split on pipes
+    // (no escaped pipes are allowed in horizontal rule)
+    m[2] = m[2].replace(/\|\s*$/, '').split('|');
+
+    // process alignment
+    var html_attrs = [ ];
+    forEach (m[2], function (s) {
+        if (s.match(/^\s*-+:\s*$/))       html_attrs.push({align: "right"});
+        else if (s.match(/^\s*:-+\s*$/))  html_attrs.push({align: "left"});
+        else if (s.match(/^\s*:-+:\s*$/)) html_attrs.push({align: "center"});
+        else                              html_attrs.push({});
+    });
+
+    // now for the header, avoid escaped pipes
+    m[1] = _split_on_unescaped(m[1].replace(/\|\s*$/, ''), '|');
+    for (i = 0; i < m[1].length; i++) {
+        table[1][1].push(['th', html_attrs[i] || {}].concat(
+            this.processInline(m[1][i].trim())));
+    }
+
+    // now for body contents
+    forEach (m[3].replace(/\|\s*$/mg, '').split('\n'), function (row) {
+        var html_row = ['tr'];
+        row = _split_on_unescaped(row, '|');
+        for (i = 0; i < row.length; i++) {
+            html_row.push(['td', html_attrs[i] || {}].concat(this.processInline(row[i].trim())));
+        }
+        table[2].push(html_row);
+    }, this);
+
+    return [table];
+}
+
+Markdown.dialects.Maruku.inline[ "{:" ] = function inline_meta( text, matches, out ) {
+  if ( !out.length ) {
+    return [ 2, "{:" ];
+  }
+
+  // get the preceeding element
+  var before = out[ out.length - 1 ];
+
+  if ( typeof before === "string" ) {
+    return [ 2, "{:" ];
+  }
+
+  // match a meta hash
+  var m = text.match( /^\{:\s*((?:\\\}|[^\}])*)\s*\}/ );
+
+  // no match, false alarm
+  if ( !m ) {
+    return [ 2, "{:" ];
+  }
+
+  // attach the attributes to the preceeding element
+  var meta = this.dialect.processMetaHash( m[ 1 ] ),
+      attr = extract_attr( before );
+
+  if ( !attr ) {
+    attr = {};
+    before.splice( 1, 0, attr );
+  }
+
+  for ( var k in meta ) {
+    attr[ k ] = meta[ k ];
+  }
+
+  // cut out the string and replace it with nothing
+  return [ m[ 0 ].length, "" ];
+};
+
+Markdown.dialects.Maruku.inline.__escape__ = /^\\[\\`\*_{}\[\]()#\+.!\-|:]/;
+
+Markdown.buildBlockOrder ( Markdown.dialects.Maruku.block );
+Markdown.buildInlinePatterns( Markdown.dialects.Maruku.inline );
+
+var isArray = Array.isArray || function(obj) {
+  return Object.prototype.toString.call(obj) == "[object Array]";
+};
+
+var forEach;
+// Don't mess with Array.prototype. Its not friendly
+if ( Array.prototype.forEach ) {
+  forEach = function( arr, cb, thisp ) {
+    return arr.forEach( cb, thisp );
+  };
+}
+else {
+  forEach = function(arr, cb, thisp) {
+    for (var i = 0; i < arr.length; i++) {
+      cb.call(thisp || arr, arr[i], i, arr);
+    }
+  }
+}
+
+var isEmpty = function( obj ) {
+  for ( var key in obj ) {
+    if ( hasOwnProperty.call( obj, key ) ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function extract_attr( jsonml ) {
+  return isArray(jsonml)
+      && jsonml.length > 1
+      && typeof jsonml[ 1 ] === "object"
+      && !( isArray(jsonml[ 1 ]) )
+      ? jsonml[ 1 ]
+      : undefined;
+}
+
+
+
+/**
+ *  renderJsonML( jsonml[, options] ) -> String
+ *  - jsonml (Array): JsonML array to render to XML
+ *  - options (Object): options
+ *
+ *  Converts the given JsonML into well-formed XML.
+ *
+ *  The options currently understood are:
+ *
+ *  - root (Boolean): wether or not the root node should be included in the
+ *    output, or just its children. The default `false` is to not include the
+ *    root itself.
+ */
+expose.renderJsonML = function( jsonml, options ) {
+  options = options || {};
+  // include the root element in the rendered output?
+  options.root = options.root || false;
+
+  var content = [];
+
+  if ( options.root ) {
+    content.push( render_tree( jsonml ) );
+  }
+  else {
+    jsonml.shift(); // get rid of the tag
+    if ( jsonml.length && typeof jsonml[ 0 ] === "object" && !( jsonml[ 0 ] instanceof Array ) ) {
+      jsonml.shift(); // get rid of the attributes
+    }
+
+    while ( jsonml.length ) {
+      content.push( render_tree( jsonml.shift() ) );
+    }
+  }
+
+  return content.join( "\n\n" );
+};
+
+function escapeHTML( text ) {
+  return text.replace( /&/g, "&amp;" )
+             .replace( /</g, "&lt;" )
+             .replace( />/g, "&gt;" )
+             .replace( /"/g, "&quot;" )
+             .replace( /'/g, "&#39;" );
+}
+
+function render_tree( jsonml ) {
+  // basic case
+  if ( typeof jsonml === "string" ) {
+    return escapeHTML( jsonml );
+  }
+
+  var tag = jsonml.shift(),
+      attributes = {},
+      content = [];
+
+  if ( jsonml.length && typeof jsonml[ 0 ] === "object" && !( jsonml[ 0 ] instanceof Array ) ) {
+    attributes = jsonml.shift();
+  }
+
+  while ( jsonml.length ) {
+    content.push( render_tree( jsonml.shift() ) );
+  }
+
+  var tag_attrs = "";
+  for ( var a in attributes ) {
+    tag_attrs += " " + a + '="' + escapeHTML( attributes[ a ] ) + '"';
+  }
+
+  // be careful about adding whitespace here for inline elements
+  if ( tag == "img" || tag == "br" || tag == "hr" ) {
+    return "<"+ tag + tag_attrs + "/>";
+  }
+  else {
+    return "<"+ tag + tag_attrs + ">" + content.join( "" ) + "</" + tag + ">";
+  }
+}
+
+function convert_tree_to_html( tree, references, options ) {
+  var i;
+  options = options || {};
+
+  // shallow clone
+  var jsonml = tree.slice( 0 );
+
+  if ( typeof options.preprocessTreeNode === "function" ) {
+      jsonml = options.preprocessTreeNode(jsonml, references);
+  }
+
+  // Clone attributes if they exist
+  var attrs = extract_attr( jsonml );
+  if ( attrs ) {
+    jsonml[ 1 ] = {};
+    for ( i in attrs ) {
+      jsonml[ 1 ][ i ] = attrs[ i ];
+    }
+    attrs = jsonml[ 1 ];
+  }
+
+  // basic case
+  if ( typeof jsonml === "string" ) {
+    return jsonml;
+  }
+
+  // convert this node
+  switch ( jsonml[ 0 ] ) {
+    case "header":
+      jsonml[ 0 ] = "h" + jsonml[ 1 ].level;
+      delete jsonml[ 1 ].level;
+      break;
+    case "bulletlist":
+      jsonml[ 0 ] = "ul";
+      break;
+    case "numberlist":
+      jsonml[ 0 ] = "ol";
+      break;
+    case "listitem":
+      jsonml[ 0 ] = "li";
+      break;
+    case "para":
+      jsonml[ 0 ] = "p";
+      break;
+    case "markdown":
+      jsonml[ 0 ] = "html";
+      if ( attrs ) delete attrs.references;
+      break;
+    case "code_block":
+      jsonml[ 0 ] = "pre";
+      i = attrs ? 2 : 1;
+      var code = [ "code" ];
+      code.push.apply( code, jsonml.splice( i, jsonml.length - i ) );
+      jsonml[ i ] = code;
+      break;
+    case "inlinecode":
+      jsonml[ 0 ] = "code";
+      break;
+    case "img":
+      jsonml[ 1 ].src = jsonml[ 1 ].href;
+      delete jsonml[ 1 ].href;
+      break;
+    case "linebreak":
+      jsonml[ 0 ] = "br";
+    break;
+    case "link":
+      jsonml[ 0 ] = "a";
+      break;
+    case "link_ref":
+      jsonml[ 0 ] = "a";
+
+      // grab this ref and clean up the attribute node
+      var ref = references[ attrs.ref ];
+
+      // if the reference exists, make the link
+      if ( ref ) {
+        delete attrs.ref;
+
+        // add in the href and title, if present
+        attrs.href = ref.href;
+        if ( ref.title ) {
+          attrs.title = ref.title;
+        }
+
+        // get rid of the unneeded original text
+        delete attrs.original;
+      }
+      // the reference doesn't exist, so revert to plain text
+      else {
+        return attrs.original;
+      }
+      break;
+    case "img_ref":
+      jsonml[ 0 ] = "img";
+
+      // grab this ref and clean up the attribute node
+      var ref = references[ attrs.ref ];
+
+      // if the reference exists, make the link
+      if ( ref ) {
+        delete attrs.ref;
+
+        // add in the href and title, if present
+        attrs.src = ref.href;
+        if ( ref.title ) {
+          attrs.title = ref.title;
+        }
+
+        // get rid of the unneeded original text
+        delete attrs.original;
+      }
+      // the reference doesn't exist, so revert to plain text
+      else {
+        return attrs.original;
+      }
+      break;
+  }
+
+  // convert all the children
+  i = 1;
+
+  // deal with the attribute node, if it exists
+  if ( attrs ) {
+    // if there are keys, skip over it
+    for ( var key in jsonml[ 1 ] ) {
+        i = 2;
+        break;
+    }
+    // if there aren't, remove it
+    if ( i === 1 ) {
+      jsonml.splice( i, 1 );
+    }
+  }
+
+  for ( ; i < jsonml.length; ++i ) {
+    jsonml[ i ] = convert_tree_to_html( jsonml[ i ], references, options );
+  }
+
+  return jsonml;
+}
+
+
+// merges adjacent text nodes into a single node
+function merge_text_nodes( jsonml ) {
+  // skip the tag name and attribute hash
+  var i = extract_attr( jsonml ) ? 2 : 1;
+
+  while ( i < jsonml.length ) {
+    // if it's a string check the next item too
+    if ( typeof jsonml[ i ] === "string" ) {
+      if ( i + 1 < jsonml.length && typeof jsonml[ i + 1 ] === "string" ) {
+        // merge the second string into the first and remove it
+        jsonml[ i ] += jsonml.splice( i + 1, 1 )[ 0 ];
+      }
+      else {
+        ++i;
+      }
+    }
+    // if it's not a string recurse
+    else {
+      merge_text_nodes( jsonml[ i ] );
+      ++i;
+    }
+  }
+}
+
+} )( (function() {
+  if ( false ) {}
+  else {
+    return exports;
+  }
+} )() );
 
 
 /***/ }),
@@ -28032,8 +28339,9 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(2186);
-const github = __nccwpck_require__(5438);
 const { Toolkit } = __nccwpck_require__(7045);
+
+const { markdown} = __nccwpck_require__( 9076 );
 
 const getRecentActivity = __nccwpck_require__(1707);
 const getFeed = __nccwpck_require__(6908);
@@ -28046,6 +28354,8 @@ const ACTIVITY_TO_HTML = core.getInput('ACTIVITY_TO_HTML');
 const MAX_FEED_LINES = core.getInput('MAX_FEED_LINES');
 const FEED_TO_HTML = core.getInput('FEED_TO_HTML');
 const FEED_URL = core.getInput('FEED_URL');
+
+const mdToHtml = (md) => (markdown.toHTML(md));
 
 Toolkit.run(
   async (tools) => {
@@ -28062,6 +28372,12 @@ Toolkit.run(
       tools.log.success('Finished getting user recent activity:');
       console.log(recentActivityLines);
 
+      if (ACTIVITY_TO_HTML) {
+        tools.log.info('Parsing activity markdown to HTML...');
+        const htmlRecentActivity = recentActivityLines.map(mdToHtml);
+        console.log(htmlRecentActivity)
+      }
+
       tools.log.info('Getting feed posts...');
       const feedData = await getFeed(FEED_URL, MAX_FEED_LINES).catch((error) => {
         tools.log.error(error.message || 'Unexpected error getting feed posts!');
@@ -28069,6 +28385,12 @@ Toolkit.run(
       });
       tools.log.success('Finished getting user feed posts:');
       console.log(feedData);
+
+      if (FEED_TO_HTML) {
+        tools.log.info('Parsing feed posts markdown to HTML...');
+        const htmlFeedPosts = recentActivityLines.map(mdToHtml);
+        console.log(htmlFeedPosts)
+      }
     } catch (error) {
       core.setFailed(error.message);
       tools.exit.errpr(error.message || 'Unexpected error!');
