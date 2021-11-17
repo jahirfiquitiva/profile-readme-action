@@ -21,34 +21,36 @@ Toolkit.run(
   async (tools) => {
     try {
       tools.log.info('Getting user recent activity...');
-      const recentActivityLines = await getRecentActivity(tools, GH_USERNAME, MAX_ACTIVITY_LINES)
-        .catch((error) => {
-          tools.log.error(error.message || 'Unexpected error getting recent activity!');
-          return [];
-        })
-        .join('\n');
+      const recentActivityLines = await getRecentActivity(
+        tools,
+        GH_USERNAME,
+        MAX_ACTIVITY_LINES
+      ).catch((error) => {
+        tools.log.error(error.message || 'Unexpected error getting recent activity!');
+        return [];
+      });
       tools.log.success('Finished getting user recent activity:');
-      console.log(recentActivityLines);
 
+      const activityLinesAsText = recentActivityLines.join('\n');
+      console.log(activityLinesAsText);
       if (ACTIVITY_TO_HTML) {
         tools.log.info('Parsing activity markdown to HTML...');
-        const htmlRecentActivity = mdToHtml(recentActivityLines);
+        const htmlRecentActivity = mdToHtml(activityLinesAsText);
         console.log(htmlRecentActivity);
       }
 
       tools.log.info('Getting feed posts...');
-      const feedData = await getFeed(FEED_URL, MAX_FEED_LINES)
-        .catch((error) => {
-          tools.log.error(error.message || 'Unexpected error getting feed posts!');
-          return [];
-        })
-        .join('\n');
+      const feedData = await getFeed(FEED_URL, MAX_FEED_LINES).catch((error) => {
+        tools.log.error(error.message || 'Unexpected error getting feed posts!');
+        return [];
+      });
       tools.log.success('Finished getting user feed posts:');
-      console.log(feedData);
 
+      const feedLinesAsText = feedData.join('\n');
+      console.log(feedLinesAsText);
       if (FEED_TO_HTML) {
         tools.log.info('Parsing feed posts markdown to HTML...');
-        const htmlFeedPosts = mdToHtml(recentActivityLines);
+        const htmlFeedPosts = mdToHtml(feedLinesAsText);
         console.log(htmlFeedPosts);
       }
     } catch (error) {
