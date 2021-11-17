@@ -15,6 +15,10 @@ inputs:
     description: 'The maximum number of lines populated in your readme file'
     default: 5
     required: false
+  FEED_URL:
+    description: 'The RSS url to get feed from'
+    default: 5
+    required: false
 
 runs:
   using: 'node12'

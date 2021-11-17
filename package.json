@@ -10,7 +10,8 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/github": "^5.0.0",
-    "actions-toolkit": "^6.0.1"
+    "actions-toolkit": "^6.0.1",
+    "rss-parser": "^3.12.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.32.0"

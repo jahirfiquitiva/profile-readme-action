@@ -2,11 +2,14 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const { Toolkit } = require('actions-toolkit');
 
+const getFeed = require('./feed');
+
 const urlPrefix = 'https://github.com';
 // Get config
 const GH_USERNAME = core.getInput('GH_USERNAME');
 const COMMIT_MSG = core.getInput('COMMIT_MSG');
 const MAX_LINES = core.getInput('MAX_LINES');
+const FEED_URL = core.getInput('FEED_URL');
 
 const capitalize = (str) => str.slice(0, 1).toUpperCase() + str.slice(1);
 
@@ -78,6 +81,7 @@ Toolkit.run(
   async (tools) => {
     try {
       const recentActivityLines = await getRecentActivity(tools).catch(() => []);
+      const feedData = await getFeed(FEED_URL).catch(() => []);
       tools.log.info('Info message');
       tools.log.debug('Debug message');
       tools.log.success('Success message');
