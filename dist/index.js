@@ -28367,17 +28367,35 @@ const removeOutterTags = (html) => {
   return html.substring(4, html.length - 5);
 };
 
+const exec = (cmd, args = []) =>
+  new Promise((resolve, reject) => {
+    const app = spawn(cmd, args, { stdio: 'pipe' });
+    let stdout = '';
+    app.stdout.on('data', (data) => {
+      stdout = data;
+    });
+    app.on('close', (code) => {
+      if (code !== 0 && !stdout.includes('nothing to commit')) {
+        err = new Error(`Invalid status code: ${code}`);
+        err.code = code;
+        return reject(err);
+      }
+      return resolve(code);
+    });
+    app.on('error', reject);
+  });
+
 const commitFile = async () => {
-  await exec("git", [
-    "config",
-    "--global",
-    "user.email",
-    "41898282+github-actions[bot]@users.noreply.github.com",
+  await exec('git', [
+    'config',
+    '--global',
+    'user.email',
+    '41898282+github-actions[bot]@users.noreply.github.com',
   ]);
-  await exec("git", ["config", "--global", "user.name", "github-actions[bot]"]);
-  await exec("git", ["add", "README.md"]);
-  await exec("git", ["commit", "-m", COMMIT_MSG]);
-  await exec("git", ["push"]);
+  await exec('git', ['config', '--global', 'user.name', 'github-actions[bot]']);
+  await exec('git', ['add', 'README.md']);
+  await exec('git', ['commit', '-m', COMMIT_MSG]);
+  await exec('git', ['push']);
 };
 
 const readmeAction = async (tools) => {
@@ -28437,7 +28455,7 @@ Toolkit.run(
       try {
         await commitFile();
       } catch (err) {
-        tools.log.debug("Something went wrong");
+        tools.log.debug('Something went wrong');
         return tools.exit.failure(err);
       }
     } catch (error) {
