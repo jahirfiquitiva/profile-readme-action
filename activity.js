@@ -65,7 +65,8 @@ const getRecentActivity = async (tools, username, maxLines = 5) => {
   const content = events.data
     .filter((event) => serializers.hasOwnProperty(event.type))
     .slice(0, maxLines)
-    .map((item) => serializers[item.type](item));
+    .map((item) => serializers[item.type](item))
+    .map((item) => `- ${item}`);
   return content;
 };
 

@@ -21,7 +21,8 @@ const getFeed = async (feedUrl, maxLines = 5) => {
     })
     .sort((a, b) => b.date - a.date)
     .slice(0, maxLines)
-    .map(transformFeedItem);
+    .map(transformFeedItem)
+    .map((item, index) => `${index + 1}. ${item}`);
 };
 
 module.exports = getFeed;
