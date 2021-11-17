@@ -1,0 +1,11 @@
+{
+  "name": "profile-readme-action",
+  "version": "1.0.0",
+  "description": "Custom GitHub action for my profile readme",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0"
+  }
+}
