@@ -28359,6 +28359,10 @@ const FEED_URL = core.getInput('FEED_URL');
 
 const mdToHtml = (md) => markdown.toHTML(md);
 
+const removeOutterTags = (html) => {
+  return html.substring(4, html.length - 5);
+};
+
 Toolkit.run(
   async (tools) => {
     try {
@@ -28377,7 +28381,7 @@ Toolkit.run(
       console.log(activityLinesAsText);
       if (ACTIVITY_TO_HTML) {
         tools.log.info('Parsing activity markdown to HTML...');
-        const htmlRecentActivity = mdToHtml(activityLinesAsText);
+        const htmlRecentActivity = removeOutterTags(mdToHtml(activityLinesAsText));
         console.log(htmlRecentActivity);
       }
 
@@ -28392,7 +28396,7 @@ Toolkit.run(
       console.log(feedLinesAsText);
       if (FEED_TO_HTML) {
         tools.log.info('Parsing feed posts markdown to HTML...');
-        const htmlFeedPosts = mdToHtml(feedLinesAsText);
+        const htmlFeedPosts = removeOutterTags(mdToHtml(feedLinesAsText));
         console.log(htmlFeedPosts);
       }
     } catch (error) {
