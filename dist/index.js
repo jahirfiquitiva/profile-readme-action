@@ -20473,21 +20473,13 @@ const github = __nccwpck_require__(5438);
 const { Toolkit } = __nccwpck_require__(7045);
 
 const urlPrefix = 'https://github.com';
+// Get config
+const GH_USERNAME = core.getInput('GH_USERNAME');
+const COMMIT_MSG = core.getInput('COMMIT_MSG');
+const MAX_LINES = core.getInput('MAX_LINES');
 
-/**
- * Returns the sentence case representation
- * @param {String} str - the string
- *
- * @returns {String}
- */
 const capitalize = (str) => str.slice(0, 1).toUpperCase() + str.slice(1);
 
-/**
- * Returns a URL in markdown format for PR's and issues
- * @param {Object | String} item - holds information concerning the issue/PR
- *
- * @returns {String}
- */
 const toUrlFormat = (item) => {
   if (typeof item === 'object') {
     return Object.hasOwnProperty.call(item.payload, 'issue')
@@ -20542,24 +20534,20 @@ const getRecentActivity = async (tools) => {
     console.error('No tools to run app!');
   }
   const events = await tools.github.activity.listPublicEventsForUser({
-    username: 'jahirfiquitiva',
+    username: GH_USERNAME,
     per_page: 100,
   });
-  // console.log(JSON.stringify(events.data, null, 2));
   const content = events.data
-    // Filter out any boring activity
     .filter((event) => serializers.hasOwnProperty(event.type))
-    // We only have five lines to work with
-    .slice(0, 5)
-    // Call the serializer to construct a string
+    .slice(0, MAX_LINES)
     .map((item) => serializers[item.type](item));
-  console.log(JSON.stringify(content, null, 2));
+  return content;
 };
 
 Toolkit.run(
   async (tools) => {
     try {
-      await getRecentActivity(tools);
+      const recentActivityLines = await getRecentActivity(tools).catch(() => []);
       tools.log.info('Info message');
       tools.log.debug('Debug message');
       tools.log.success('Success message');
