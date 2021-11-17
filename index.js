@@ -48,7 +48,10 @@ const serializers = {
   // "PushEvent";
 };
 
-const getRecentActivity = async () => {
+const getRecentActivity = async (tools) => {
+  if(!tools) {
+    console.error('No tools to run app!')
+  }
   const events = await tools.github.activity.listPublicEventsForUser({
     username: 'jahirfiquitiva',
   });
@@ -65,11 +68,11 @@ const getRecentActivity = async () => {
 
 Toolkit.run(
   async (tools) => {
-    tools.log.info('Info message');
-    tools.log.debug('Debug message');
-    tools.log.success('Success message');
     try {
-      await getRecentActivity();
+      await getRecentActivity(tools);
+      tools.log.info('Info message');
+      tools.log.debug('Debug message');
+      tools.log.success('Success message');
       // `who-to-greet` input defined in action metadata file
       const nameToGreet = core.getInput('who-to-greet');
       console.log(`Hello ${nameToGreet}!`);
