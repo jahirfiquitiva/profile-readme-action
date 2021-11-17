@@ -9,7 +9,7 @@ jobs:
       # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Hello world action step
+      - name: Update readme with activity and feed
         uses: ./ # Uses an action in the root directory
         id: readme
         env:

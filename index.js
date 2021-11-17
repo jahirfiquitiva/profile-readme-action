@@ -16,9 +16,6 @@ const MAX_FEED_LINES = core.getInput('MAX_FEED_LINES');
 const FEED_TO_HTML = core.getInput('FEED_TO_HTML').toString().includes('true');
 const FEED_URL = core.getInput('FEED_URL');
 
-console.log(`Should transform Activity to HTML? = `, ACTIVITY_TO_HTML);
-console.log(`Should transform Feed to HTML? = `, FEED_TO_HTML);
-
 const mdToHtml = (md) => markdown.toHTML(md);
 
 const removeOutterTags = (html) => {

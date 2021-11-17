@@ -17,7 +17,7 @@ const formatRepoNameToUrl = (repoName) => {
 
 const formatReleaseTag = (release, repoName) => {
   const { tag_name, name } = release;
-  return `"[${name}](${urlPrefix}/${repoName}/releases/tag/${tag_name})"`;
+  return `[${name}](${urlPrefix}/${repoName}/releases/tag/${tag_name})`;
 };
 
 const serializers = {
