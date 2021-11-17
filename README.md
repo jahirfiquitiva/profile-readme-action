@@ -39,7 +39,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Update readme with activity and feed
-        uses: jahirfiquitiva/profile-readme@main
+        uses: jahirfiquitiva/profile-readme-action@main
         id: readme
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
