@@ -65,11 +65,11 @@ const getRecentActivity = async () => {
 
 Toolkit.run(
   async (tools) => {
+    tools.log.info('Info message');
+    tools.log.debug('Debug message');
+    tools.log.success('Success message');
     try {
       await getRecentActivity();
-       tools.log.info("Info message");
-       tools.log.debug("Debug message");
-       tools.log.success("Success message");
       // `who-to-greet` input defined in action metadata file
       const nameToGreet = core.getInput('who-to-greet');
       console.log(`Hello ${nameToGreet}!`);
@@ -81,7 +81,7 @@ Toolkit.run(
     } catch (error) {
       core.setFailed(error.message);
     }
-    tools.exit.success("Pushed to remote repository");
+    tools.exit.success('Pushed to remote repository');
   },
   {
     event: ['schedule', 'workflow_dispatch', 'push'],
