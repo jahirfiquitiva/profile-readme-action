@@ -60,9 +60,15 @@ const readmeAction = async (tools) => {
     .readFileSync('./README.md', 'utf-8')
     .split('\n')
     .map((line) => {
-      return line
-        .replace('<!--{{activity}}-->', activityLinesAsText)
-        .replace('<!--{{feed}}-->', feedLinesAsText);
+      const content = line.trim();
+      switch (content) {
+        case '<!--{{activity}}-->':
+          return activityLinesAsText;
+        case '<!--{{feed}}-->':
+          return feedLinesAsText;
+        default:
+          return content;
+      }
     });
   console.log(readmeContent.join('\n'));
 };
