@@ -1,6 +1,9 @@
 const core = require('@actions/core');
 const { Toolkit } = require('actions-toolkit');
 
+const fs = require("fs");
+const path = require("path");
+
 const { markdown } = require('markdown');
 
 const getRecentActivity = require('./activity');

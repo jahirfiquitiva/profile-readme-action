@@ -28343,6 +28343,9 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(2186);
 const { Toolkit } = __nccwpck_require__(7045);
 
+const fs = __nccwpck_require__(7147);
+const path = __nccwpck_require__(1017);
+
 const { markdown } = __nccwpck_require__(9076);
 
 const getRecentActivity = __nccwpck_require__(1707);
