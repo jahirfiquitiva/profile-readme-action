@@ -51,13 +51,11 @@ const serializers = {
     return `${line} PR ${toUrlFormat(item)} in ${toUrlFormat(item.repo.name)}`;
   },
   ForkEvent: (item) => {
-    console.log(item);
     return `🍴 Forked ${formatRepoNameToUrl(
       item.payload.forkee.full_name
     )} from ${formatRepoNameToUrl(item.repo.name)}`;
   },
   ReleaseEvent: (item) => {
-    console.log(item);
     return `📦 Released "${formatReleaseTag(
       item.payload.release,
       item.repo.name
@@ -85,7 +83,7 @@ Toolkit.run(
     try {
       const recentActivityLines = await getRecentActivity(tools).catch(() => []);
       console.log(recentActivityLines);
-      const feedData = await getFeed(FEED_URL, MAX_BLOGS_LINES).catch(() => []);
+      const feedData = await getFeed(FEED_URL, MAX_FEED_LINES).catch(() => []);
       console.log(feedData);
       tools.log.info('Info message');
       tools.log.debug('Debug message');
