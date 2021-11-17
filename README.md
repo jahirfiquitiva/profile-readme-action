@@ -1,19 +1,76 @@
 # Profile Readme
 
-This is an example readme
+This is a GitHub action I created for my [GitHub profile's README](https://github.com/jahirfiquitiva/jahirfiquitiva)
 
-### Recent activity:
+It gets the user's recent activity and the most recent posts from an RSS feed.
 
-- 📦 Released "[New Tag](https://github.com/jahirfiquitiva/old-next-web/releases/tag/0.1)" in [jahirfiquitiva/old-next-web](https://github.com/jahirfiquitiva/old-next-web)
-- 📦 Released "[test](https://github.com/jahirfiquitiva/old-next-web/releases/tag/test)" in [jahirfiquitiva/old-next-web](https://github.com/jahirfiquitiva/old-next-web)
-- 🍴 Forked [jahirfiquitiva/profile-readme](https://github.com/jahirfiquitiva/profile-readme) from [actions-js/profile-readme](https://github.com/actions-js/profile-readme)
-- 🎉 Merged PR [#1](https://github.com/jahirfiquitiva/jahirfiquitiva/pull/1) in [jahirfiquitiva/jahirfiquitiva](https://github.com/jahirfiquitiva/jahirfiquitiva)
-- 💪 Opened PR [#1](https://github.com/jahirfiquitiva/jahirfiquitiva/pull/1) in [jahirfiquitiva/jahirfiquitiva](https://github.com/jahirfiquitiva/jahirfiquitiva)
+## Credits
 
-It combines **html** and **markdown** code
+This project is heavily based on @jamesgeorge007 [GitHub Activity Readme](https://github.com/jamesgeorge007/github-activity-readme) and @actions-js [Profile Readme](https://github.com/actions-js/profile-readme)
 
-#### Latest blog posts:
+Full credits belong to them. I just adapted the code to match my needs
 
-<ol>
-<li><a href="https://jahir.dev/blog/building-website-from-scratch">Building my website from scratch</a></li><li><a href="https://jahir.dev/blog/redesigning-my-website">Redesigning my website</a></li><li><a href="https://jahir.dev/blog/publishing-react-package">Publishing a React component package on npm</a></li><li><a href="https://jahir.dev/blog/uses">Which tools do I use?</a></li>
-<ol>
+---
+
+## Instructions
+
+- Create a file named `TEMPLATE.md` with the base content you want.
+- *(Optional)* Add the comment `<!--{{activity}}-->` within `TEMPLATE.md`. You can find an example [here](https://github.com/jahirfiquitiva/profile-readme/blob/main/TEMPLATE.md).
+- *(Optional)* Add the comment `<!--{{feed}}-->` within `TEMPLATE.md`. You can find an example [here](https://github.com/jahirfiquitiva/profile-readme/blob/main/TEMPLATE.md).
+
+- It's the time to create a workflow file.
+
+`.github/workflows/update-readme.yml`
+
+```yml
+name: Update README
+
+on:
+  workflow_dispatch:
+  push:
+  schedule:
+    - cron: '0 0/4 * * *'
+
+jobs:
+  update_readme:
+    runs-on: ubuntu-latest
+    name: Job to update readme
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update readme with activity and feed
+        uses: jahirfiquitiva/profile-readme@main
+        id: readme
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          FEED_URL: 'https://hnrss.org/frontpage'
+          FEED_TO_HTML: true
+          MAX_FEED_LINES: 4
+          ACTIVITY_TO_HTML: true
+```
+
+The above job runs every four hours, you can change it as you wish based on the [cron syntax](https://jasonet.co/posts/scheduled-actions/#the-cron-syntax).
+
+Please note that only those public events that belong to the following list show up:-
+
+- `IssueEvent`
+- `IssueCommentEvent`
+- `PullRequestEvent`
+- `ForkEvent`
+- `ReleaseEvent`
+
+You can find an example [here](https://github.com/jahirfiquitiva/jahirfiquitiva/blob/master/.github/workflows/main.yml).
+
+### Override defaults
+
+Use the following `input params` to customize it for your use case:-
+
+| Input Param | Default Value | Description |
+|--------|--------|--------|
+| `COMMIT_MSG` | :sparkles: Update README with the recent activity and blog posts |
+| `MAX_ACTIVITY_LINES` | 5 | The maximum number of lines populated in your readme file |
+| `ACTIVITY_TO_HTML` | false | Whether to convert activity markdown to html |
+| `FEED_URL` | '' | The RSS url to get feed from |
+| `MAX_FEED_LINES` | 5 | The maximum number of lines for feed populated in your readme file |
+| `FEED_TO_HTML` | false | Whether to convert blogs markdown to html |

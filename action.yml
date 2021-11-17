@@ -1,5 +1,5 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Profile readme'
+description: 'Action that return recent activity and feed posts'
 author: jahirfiquitiva
 
 inputs:
@@ -12,7 +12,7 @@ inputs:
     default: ':sparkles: Update README with the recent activity and blog posts'
     required: false
   MAX_ACTIVITY_LINES:
-    description: 'The maximum number of lines populated in your readme file'
+    description: 'The maximum number of lines for activity populated in your readme file'
     default: 5
     required: false
   ACTIVITY_TO_HTML:
@@ -20,7 +20,7 @@ inputs:
     default: false
     required: false
   MAX_FEED_LINES:
-    description: 'The maximum number of lines populated in your readme file'
+    description: 'The maximum number of lines for feed populated in your readme file'
     default: 5
     required: false
   FEED_URL:
