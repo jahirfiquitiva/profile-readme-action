@@ -27,6 +27,15 @@ const toUrlFormat = (item) => {
   return `[${item}](${urlPrefix}/${item})`;
 };
 
+const formatRepoNameToUrl = (repoName) => {
+  return `[${repoName}](${urlPrefix}/${repoName})`;
+};
+
+const formatReleaseTag = (release, repoName) => {
+  const { tag_name, name } = release;
+  return `"[${name}](${urlPrefix}/${repoName}/releases/tag/${tag_name})"`;
+};
+
 const serializers = {
   IssueCommentEvent: (item) => {
     return `🗣 Commented on ${toUrlFormat(item)} in ${toUrlFormat(item.repo.name)}`;
@@ -43,19 +52,24 @@ const serializers = {
       : `${emoji} ${capitalize(item.payload.action)}`;
     return `${line} PR ${toUrlFormat(item)} in ${toUrlFormat(item.repo.name)}`;
   },
-  ForkEvent: item => {
-    console.log(item)
-    return `🍴 Forked ${item.payload.forkee.full_name} from ${item.repo.name}`;
+  ForkEvent: (item) => {
+    console.log(item);
+    return `🍴 Forked ${formatRepoNameToUrl(
+      item.payload.forkee.full_name
+    )} from ${formatRepoNameToUrl(item.repo.name)}`;
   },
-  ReleaseEvent: item => {
-    console.log(item)
-    return `📦 Released "${item.payload.release.name}" in ${item.repo.name}`;
+  ReleaseEvent: (item) => {
+    console.log(item);
+    return `📦 Released "${formatReleaseTag(
+      item.payload.release,
+      item.repo.name
+    )}" in ${formatRepoNameToUrl(item.repo.name)}`;
   },
 };
 
 const getRecentActivity = async (tools) => {
-  if(!tools) {
-    console.error('No tools to run app!')
+  if (!tools) {
+    console.error('No tools to run app!');
   }
   const events = await tools.github.activity.listPublicEventsForUser({
     username: 'jahirfiquitiva',
