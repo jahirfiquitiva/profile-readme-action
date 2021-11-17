@@ -43,9 +43,12 @@ const serializers = {
       : `${emoji} ${capitalize(item.payload.action)}`;
     return `${line} PR ${toUrlFormat(item)} in ${toUrlFormat(item.repo.name)}`;
   },
-  //   "ForkEvent",
-  // "ReleaseEvent",
-  // "PushEvent";
+  ForkEvent: item => {
+    return `🍴 Forked ${item.payload.forkee.full_name} from ${item.repo.name}`;
+  },
+  ReleaseEvent: item => {
+    return `📦 Released "${item.payload.release.name}" in ${item.repo.name}`;
+  },
 };
 
 const getRecentActivity = async (tools) => {
@@ -54,8 +57,9 @@ const getRecentActivity = async (tools) => {
   }
   const events = await tools.github.activity.listPublicEventsForUser({
     username: 'jahirfiquitiva',
+    per_page: 100,
   });
-  console.log(JSON.stringify(events.data, null, 2));
+  // console.log(JSON.stringify(events.data, null, 2));
   const content = events.data
     // Filter out any boring activity
     .filter((event) => serializers.hasOwnProperty(event.type))
