@@ -2,10 +2,10 @@
 
 This is an example readme
 
-{{blog-posts}}
+<!--{{feed}}-->
 
 It combines **html** and **markdown** code
 
 <ol>
-{{recent-activity}}
+<!--{{activity}}-->
 <ol>

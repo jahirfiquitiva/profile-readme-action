@@ -1,8 +1,8 @@
 const core = require('@actions/core');
 const { Toolkit } = require('actions-toolkit');
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 const { markdown } = require('markdown');
 
@@ -56,8 +56,15 @@ const readmeAction = async (tools) => {
     feedLinesAsText = removeOutterTags(mdToHtml(feedLinesAsText));
   }
 
-  const readmeContent = fs.readFileSync('./README.md', 'utf-8').split('\n');
-  console.log(readmeContent);
+  const readmeContent = fs
+    .readFileSync('./README.md', 'utf-8')
+    .split('\n')
+    .map((line) => {
+      return line
+        .replace('<!--{{activity}}-->', activityLinesAsText)
+        .replace('<!--{{feed}}-->', feedLinesAsText);
+    });
+  console.log(readmeContent.join('\n'));
 };
 
 Toolkit.run(

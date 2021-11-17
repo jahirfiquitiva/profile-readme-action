@@ -28398,8 +28398,15 @@ const readmeAction = async (tools) => {
     feedLinesAsText = removeOutterTags(mdToHtml(feedLinesAsText));
   }
 
-  const readmeContent = fs.readFileSync('./README.md', 'utf-8').split('\n');
-  console.log(readmeContent);
+  const readmeContent = fs
+    .readFileSync('./README.md', 'utf-8')
+    .split('\n')
+    .map((line) => {
+      return line
+        .replace('<!--{{activity}}-->', activityLinesAsText)
+        .replace('<!--{{feed}}-->', feedLinesAsText);
+    });
+  console.log(readmeContent.join('\n'));
 };
 
 Toolkit.run(
