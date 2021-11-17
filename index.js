@@ -8,7 +8,10 @@ const urlPrefix = 'https://github.com';
 // Get config
 const GH_USERNAME = core.getInput('GH_USERNAME');
 const COMMIT_MSG = core.getInput('COMMIT_MSG');
-const MAX_LINES = core.getInput('MAX_LINES');
+const MAX_ACTIVITY_LINES = core.getInput('MAX_ACTIVITY_LINES');
+const ACTIVITY_TO_HTML = core.getInput('ACTIVITY_TO_HTML');
+const MAX_FEED_LINES = core.getInput('MAX_FEED_LINES');
+const FEED_TO_HTML = core.getInput('FEED_TO_HTML');
 const FEED_URL = core.getInput('FEED_URL');
 
 const capitalize = (str) => str.slice(0, 1).toUpperCase() + str.slice(1);
@@ -72,7 +75,7 @@ const getRecentActivity = async (tools) => {
   });
   const content = events.data
     .filter((event) => serializers.hasOwnProperty(event.type))
-    .slice(0, MAX_LINES)
+    .slice(0, MAX_ACTIVITY_LINES)
     .map((item) => serializers[item.type](item));
   return content;
 };
@@ -81,7 +84,9 @@ Toolkit.run(
   async (tools) => {
     try {
       const recentActivityLines = await getRecentActivity(tools).catch(() => []);
-      const feedData = await getFeed(FEED_URL).catch(() => []);
+      console.log(recentActivityLines);
+      const feedData = await getFeed(FEED_URL, MAX_BLOGS_LINES).catch(() => []);
+      console.log(feedData);
       tools.log.info('Info message');
       tools.log.debug('Debug message');
       tools.log.success('Success message');
